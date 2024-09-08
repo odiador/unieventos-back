@@ -19,11 +19,11 @@ public class Coupon {
 
     @Id
     private String id;
-    private float descuento;
-    private LocalDateTime fechaVencimiento;
-    private String codigo;
-    private CouponStatus estado;
-    private CouponType tipo;
-    private String nombre;
+    private float discount;
+    private LocalDateTime expiryDate;
+    private String code;
+    private CouponStatus status;
+    private CouponType type;
+    private String name;
 
 }

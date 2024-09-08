@@ -20,8 +20,8 @@ public class Cart {
 
 	@Id
 	private String id;
-	private LocalDateTime fecha;
+	private LocalDateTime date;
 	private List<CartDetail> items;
-	private String idUsuario;
+	private String userId;
 
 }
