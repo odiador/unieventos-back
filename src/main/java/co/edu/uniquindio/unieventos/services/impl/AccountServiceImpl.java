@@ -4,12 +4,14 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import co.edu.uniquindio.unieventos.dto.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.RecoveryPasswordMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.UserDataDTO;
+import co.edu.uniquindio.unieventos.dto.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.model.Account;
 import co.edu.uniquindio.unieventos.model.AccountStatus;
 import co.edu.uniquindio.unieventos.model.Role;
@@ -20,16 +22,17 @@ import co.edu.uniquindio.unieventos.services.AccountService;
 import co.edu.uniquindio.unieventos.services.EmailService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
 
+@Service
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired
-	AccountRepository repo;
+	private AccountRepository repo;
 
 	@Autowired
-	EmailService emailService;
+	private EmailService emailService;
 
 	@Autowired
-	RandomCodesService randomCodesService;
+	private RandomCodesService randomCodesService;
 
 	@Override
 	public Account createAccount(CreateAccountDTO account) throws Exception {
@@ -58,6 +61,8 @@ public class AccountServiceImpl implements AccountService {
 				.registrationTime(LocalDateTime.now())
 				.role(Role.CLIENT)
 				.build();
+
+		emailService.sendVerificationMail(new VerifyMailSendDTO(account.email(), registerValidation.getCode()));
 
 		repo.save(createdAccount);
 		return createdAccount;

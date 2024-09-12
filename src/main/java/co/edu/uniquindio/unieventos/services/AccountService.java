@@ -1,14 +1,11 @@
 package co.edu.uniquindio.unieventos.services;
 
-import org.springframework.stereotype.Service;
-
 import co.edu.uniquindio.unieventos.dto.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.UserDataDTO;
 import co.edu.uniquindio.unieventos.model.Account;
 
-@Service
 public interface AccountService {
 
 	Account createAccount(CreateAccountDTO account) throws Exception;
