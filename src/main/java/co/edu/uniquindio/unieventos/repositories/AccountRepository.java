@@ -20,4 +20,6 @@ public interface AccountRepository extends MongoRepository<Account, String> {
 	boolean existsByEmailAndStatus(String email, AccountStatus status);
 
 	Optional<Account> findByEmailAndPassword(String email, String password);
+
+    Optional<Account> findByUser_Cedula(String id);
 }

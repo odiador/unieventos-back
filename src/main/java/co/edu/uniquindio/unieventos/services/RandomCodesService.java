@@ -2,11 +2,11 @@ package co.edu.uniquindio.unieventos.services;
 
 public interface RandomCodesService {
 
-	String getRandomCouponCode() throws Exception;
+	String getRandomCouponCode();
 
-	String getPasswordRecoveryCode() throws Exception;
+	String getPasswordRecoveryCode();
 
-	String getAccountVerifyCode() throws Exception;
+	String getAccountVerifyCode();
 
-	String getRandomRegisterCode() throws Exception;
+	String getRandomRegisterCode();
 }

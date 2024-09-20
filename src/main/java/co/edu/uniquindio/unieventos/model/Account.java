@@ -23,7 +23,7 @@ public class Account {
 	private String id;
 	private Role role;
 	private String email, password;
-	private ValidationCode registerValidationCode, passwordValidationCode;
+	private ValidationCode registerValidationCode, passwordValidationCode, loginValidationCode;
 	private UserData user;
 	private LocalDateTime registrationTime;
 	private AccountStatus status;

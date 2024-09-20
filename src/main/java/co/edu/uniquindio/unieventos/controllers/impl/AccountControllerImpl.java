@@ -75,7 +75,6 @@ public class AccountControllerImpl implements AccountController {
 	@Override
 	@PostMapping("/login")
 	public ResponseEntity<String> login(@RequestBody LoginDTO loginDTO) throws Exception {
-		String token = accountService.login(loginDTO);
-		return ResponseEntity.ok(token);
+		return ResponseEntity.ok(accountService.login(loginDTO).token());
 	}
 }

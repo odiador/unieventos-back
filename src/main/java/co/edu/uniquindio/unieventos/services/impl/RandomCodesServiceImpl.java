@@ -13,22 +13,22 @@ public class RandomCodesServiceImpl implements RandomCodesService {
 	private final SecureRandom random = new SecureRandom();
 
 	@Override
-	public String getRandomCouponCode() throws Exception {
+	public String getRandomCouponCode() {
 		return generateCode(8);
 	}
 
 	@Override
-	public String getPasswordRecoveryCode() throws Exception {
+	public String getPasswordRecoveryCode() {
 		return generateCode(6);
 	}
 
 	@Override
-	public String getAccountVerifyCode() throws Exception {
+	public String getAccountVerifyCode() {
 		return generateCode(8);
 	}
 
 	@Override
-	public String getRandomRegisterCode() throws Exception {
+	public String getRandomRegisterCode() {
 		return generateCode(8);
 	}
 
