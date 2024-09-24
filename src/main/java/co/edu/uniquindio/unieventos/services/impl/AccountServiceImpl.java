@@ -34,6 +34,7 @@ import co.edu.uniquindio.unieventos.repositories.AccountRepository;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import co.edu.uniquindio.unieventos.services.EmailService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -52,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
 	private final JWTUtils jwtUtils;
 
 	@Override
-	public Account createAccount(CreateAccountDTO account) throws DocumentFoundException, MailSendingException {
+	public Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException {
 		if (repo.existsByEmailAndUser_Cedula(account.email(), account.cedula()))
 			throw new DocumentFoundException("La cuenta con ese email o cédula ya existe");
 
@@ -62,9 +63,14 @@ public class AccountServiceImpl implements AccountService {
 		ValidationCode registerValidation = ValidationCode.builder().timestamp(LocalDateTime.now())
 				.code(randomCodesService.getRandomRegisterCode()).build();
 
-		Account createdAccount = Account.builder().email(account.email())
-				.password(encryptPassword(account.password())).registerValidationCode(registerValidation)
-				.user(userData).status(AccountStatus.UNVERIFIED).registrationTime(LocalDateTime.now()).role(Role.CLIENT)
+		Account createdAccount = Account.builder(
+				).email(account.email())
+				.password(encryptPassword(account.password()))
+				.registerValidationCode(registerValidation)
+				.user(userData)
+				.status(AccountStatus.UNVERIFIED)
+				.registrationTime(LocalDateTime.now())
+				.role(Role.CLIENT)
 				.build();
 
 		try {
@@ -78,12 +84,17 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String editAccount(UserDataDTO dto) throws DocumentNotFoundException {
+	public String editAccount(@Valid UserDataDTO dto) throws DocumentNotFoundException {
 		Optional<Account> accountOpt = repo.findByUser_Cedula(dto.id());
 		if (accountOpt.isEmpty())
 			throw new DocumentNotFoundException("La cuenta no existe");
-		UserData ud = UserData.builder().id(dto.id()).cedula(dto.cedula()).adress(dto.adress()).name(dto.name())
-				.phone(dto.phone()).build();
+		UserData ud = UserData.builder()
+				.id(dto.id())
+				.cedula(dto.cedula())
+				.adress(dto.adress())
+				.name(dto.name())
+				.phone(dto.phone())
+				.build();
 		Account account = accountOpt.get();
 		account.setUser(ud);
 		repo.save(account);
@@ -117,7 +128,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String changePassword(ChangePasswordDTO dto) throws DocumentNotFoundException, InvalidPasswordException {
+	public String changePassword(@Valid ChangePasswordDTO dto) throws DocumentNotFoundException, InvalidPasswordException {
 		if (!dto.newPassword().equals(dto.confirmPassword()))
 			throw new InvalidPasswordException("Las contraseñas no coinciden");
 		Account optional = repo.findById(dto.id())
@@ -128,7 +139,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public TokenDTO login(LoginDTO loginDTO) throws InvalidLoginException, InvalidUsernameException {
+	public TokenDTO login(@Valid LoginDTO loginDTO) throws InvalidLoginException, InvalidUsernameException {
 		Account accFound = repo.findByEmail(loginDTO.email()).orElse(null);
 		if (accFound == null)
 			throw new InvalidUsernameException("No tienes cuenta");
@@ -141,18 +152,18 @@ public class AccountServiceImpl implements AccountService {
 
 	}
 
-	public UserDataDTO parseUserData(UserData ud) {
+	public UserDataDTO parseUserData(@Valid UserData ud) {
 		return new UserDataDTO(ud.getId(), ud.getPhone(), ud.getAdress(), ud.getCedula(), ud.getName());
 	}
 
 	@Override
-	public String recuperateAccount(RecuperateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException {
+	public String recuperateAccount(@Valid RecuperateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException {
 		// TODO
 		return null;
 	}
 
 	@Override
-	public String activateAccount(ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException {
+	public String activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException {
 		// TODO
 		return null;
 	}

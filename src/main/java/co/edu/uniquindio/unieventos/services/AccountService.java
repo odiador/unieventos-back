@@ -16,12 +16,13 @@ import co.edu.uniquindio.unieventos.exceptions.InvalidPasswordException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
 import co.edu.uniquindio.unieventos.model.Account;
+import jakarta.validation.Valid;
 
 public interface AccountService {
 
-	Account createAccount(CreateAccountDTO account) throws DocumentFoundException, MailSendingException;
+	Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException;
 
-	String editAccount(UserDataDTO account) throws DocumentNotFoundException;
+	String editAccount(@Valid UserDataDTO account) throws DocumentNotFoundException;
 
 	String deleteAccount(String id) throws DocumentNotFoundException;
 
@@ -29,12 +30,12 @@ public interface AccountService {
 
 	String sendRecuperationCode(String email) throws DocumentNotFoundException, MailSendingException, DelayException;
 
-	String recuperateAccount(RecuperateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException;
+	String recuperateAccount(@Valid RecuperateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException;
 
-	String activateAccount(ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException;
+	String activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException;
 
-	String changePassword(ChangePasswordDTO change) throws DocumentNotFoundException,InvalidPasswordException;
+	String changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidPasswordException;
 
-	TokenDTO login(LoginDTO loginDTO) throws InvalidLoginException, InvalidUsernameException;
+	TokenDTO login(@Valid LoginDTO loginDTO) throws InvalidLoginException, InvalidUsernameException;
 
 }
