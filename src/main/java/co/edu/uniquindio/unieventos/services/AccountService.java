@@ -1,12 +1,12 @@
 package co.edu.uniquindio.unieventos.services;
 
-import co.edu.uniquindio.unieventos.dto.ActivateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.ChangePasswordDTO;
-import co.edu.uniquindio.unieventos.dto.CreateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.LoginDTO;
-import co.edu.uniquindio.unieventos.dto.RecuperateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.TokenDTO;
-import co.edu.uniquindio.unieventos.dto.UserDataDTO;
+import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
+import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.auth.RecuperateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
+import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;

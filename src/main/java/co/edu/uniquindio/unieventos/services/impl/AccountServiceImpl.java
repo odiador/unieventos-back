@@ -9,15 +9,15 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import co.edu.uniquindio.unieventos.config.JWTUtils;
-import co.edu.uniquindio.unieventos.dto.ActivateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.ChangePasswordDTO;
-import co.edu.uniquindio.unieventos.dto.CreateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.LoginDTO;
-import co.edu.uniquindio.unieventos.dto.RecoveryPasswordMailSendDTO;
-import co.edu.uniquindio.unieventos.dto.RecuperateAccountDTO;
-import co.edu.uniquindio.unieventos.dto.TokenDTO;
-import co.edu.uniquindio.unieventos.dto.UserDataDTO;
-import co.edu.uniquindio.unieventos.dto.VerifyMailSendDTO;
+import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
+import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.auth.RecoveryPasswordMailSendDTO;
+import co.edu.uniquindio.unieventos.dto.auth.RecuperateAccountDTO;
+import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
+import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
+import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidCodeException;
@@ -63,8 +63,8 @@ public class AccountServiceImpl implements AccountService {
 		ValidationCode registerValidation = ValidationCode.builder().timestamp(LocalDateTime.now())
 				.code(randomCodesService.getRandomRegisterCode()).build();
 
-		Account createdAccount = Account.builder(
-				).email(account.email())
+		Account createdAccount = Account.builder()
+				.email(account.email())
 				.password(encryptPassword(account.password()))
 				.registerValidationCode(registerValidation)
 				.user(userData)
@@ -131,7 +131,7 @@ public class AccountServiceImpl implements AccountService {
 	public String changePassword(@Valid ChangePasswordDTO dto) throws DocumentNotFoundException, InvalidPasswordException {
 		if (!dto.newPassword().equals(dto.confirmPassword()))
 			throw new InvalidPasswordException("Las contraseñas no coinciden");
-		Account optional = repo.findById(dto.id())
+		Account optional = repo.findByEmail(dto.email())
 				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"));
 		optional.setPassword(dto.newPassword());
 		repo.save(optional);

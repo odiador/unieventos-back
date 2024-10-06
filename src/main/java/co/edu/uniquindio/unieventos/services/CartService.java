@@ -2,7 +2,7 @@ package co.edu.uniquindio.unieventos.services;
 
 import java.util.List;
 
-import co.edu.uniquindio.unieventos.dto.CreateCartDTO;
+import co.edu.uniquindio.unieventos.dto.carts.CreateCartDTO;
 import co.edu.uniquindio.unieventos.model.Cart;
 
 public interface CartService {

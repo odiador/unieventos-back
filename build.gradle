@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+	implementation 'com.mercadopago:sdk-java:2.1.27'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-web'

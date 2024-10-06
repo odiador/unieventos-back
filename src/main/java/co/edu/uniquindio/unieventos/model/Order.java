@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,10 +13,11 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Document(collection = "ordenes")
+@Document(collection = "orders")
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
 @AllArgsConstructor
 public class Order {
 
@@ -23,7 +25,7 @@ public class Order {
     private String id;
     private ObjectId clientId;
     private LocalDateTime timestamp;
-    private ObjectId paymentId;
+    private Payment payment;
     private List<OrderDetail> items;
     private float total;
     private ObjectId couponId;

@@ -1,23 +1,17 @@
 package co.edu.uniquindio.unieventos.model;
 
-import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Document(collection = "eventtags")
 @Getter
 @Setter
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
-public class OrderDetail {
-
-    private String id;
-    private ObjectId eventId;
-    private String localityName;
-    private int quantity;
-
+public class EventTag {
+	private String name, color, textColor;
 }

@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import co.edu.uniquindio.unieventos.dto.CreateCartDTO;
-import co.edu.uniquindio.unieventos.dto.CreateCartDetailDTO;
+import co.edu.uniquindio.unieventos.dto.carts.CreateCartDTO;
+import co.edu.uniquindio.unieventos.dto.carts.CreateCartDetailDTO;
 import co.edu.uniquindio.unieventos.model.Cart;
 import co.edu.uniquindio.unieventos.model.CartDetail;
 import co.edu.uniquindio.unieventos.repositories.CartRepository;

@@ -2,7 +2,7 @@ package co.edu.uniquindio.unieventos;
 
 import org.junit.jupiter.api.Test;
 
-import co.edu.uniquindio.unieventos.dto.VerifyMailSendDTO;
+import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.services.impl.EmailServiceImpl;
 
 public class MailTest {

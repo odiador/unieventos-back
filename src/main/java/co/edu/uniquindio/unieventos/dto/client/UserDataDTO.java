@@ -1,4 +1,4 @@
-package co.edu.uniquindio.unieventos.dto;
+package co.edu.uniquindio.unieventos.dto.client;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

@@ -1,4 +1,4 @@
-package co.edu.uniquindio.unieventos.dto;
+package co.edu.uniquindio.unieventos.dto.misc;
 
 public record MessageDTO<T>(
 		boolean error,
