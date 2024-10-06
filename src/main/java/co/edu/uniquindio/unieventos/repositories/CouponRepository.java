@@ -7,8 +7,8 @@ import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import co.edu.uniquindio.unieventos.model.Coupon;
-import co.edu.uniquindio.unieventos.model.CouponStatus;
+import co.edu.uniquindio.unieventos.model.documents.Coupon;
+import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
 
 @Repository
 public interface CouponRepository extends MongoRepository<Coupon, String> {

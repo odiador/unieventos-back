@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
-import co.edu.uniquindio.unieventos.model.Cart;
+import co.edu.uniquindio.unieventos.model.documents.Cart;
 
 @Repository
 public interface CartRepository extends MongoRepository<Cart, String> {

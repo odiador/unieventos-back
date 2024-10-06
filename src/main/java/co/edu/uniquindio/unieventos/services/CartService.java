@@ -3,7 +3,7 @@ package co.edu.uniquindio.unieventos.services;
 import java.util.List;
 
 import co.edu.uniquindio.unieventos.dto.carts.CreateCartDTO;
-import co.edu.uniquindio.unieventos.model.Cart;
+import co.edu.uniquindio.unieventos.model.documents.Cart;
 
 public interface CartService {
 

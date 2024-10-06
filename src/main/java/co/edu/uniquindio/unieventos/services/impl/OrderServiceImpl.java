@@ -19,10 +19,10 @@ import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.config.MercadoPagoProps;
-import co.edu.uniquindio.unieventos.model.Event;
-import co.edu.uniquindio.unieventos.model.Locality;
-import co.edu.uniquindio.unieventos.model.Order;
-import co.edu.uniquindio.unieventos.model.OrderDetail;
+import co.edu.uniquindio.unieventos.model.documents.Event;
+import co.edu.uniquindio.unieventos.model.documents.Order;
+import co.edu.uniquindio.unieventos.model.vo.Locality;
+import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
 import co.edu.uniquindio.unieventos.repositories.OrderRepository;
 import co.edu.uniquindio.unieventos.services.EventService;
 import co.edu.uniquindio.unieventos.services.OrderService;
@@ -111,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
 
 				// Se obtiene la orden guardada en la base de datos y se le asigna el pago
 				Order orden = getOrder(idOrden);
-				co.edu.uniquindio.unieventos.model.Payment pago = crearPago(payment);
+				co.edu.uniquindio.unieventos.model.vo.Payment pago = crearPago(payment);
 				orden.setPayment(pago);
 				repo.save(orden);
 			}
@@ -131,8 +131,8 @@ public class OrderServiceImpl implements OrderService {
 		return Order.builder().clientId(ObjectId.get()).items(items).id(idOrden).build();
 	}
 
-	private co.edu.uniquindio.unieventos.model.Payment crearPago(Payment payment) {
-		co.edu.uniquindio.unieventos.model.Payment pago = new co.edu.uniquindio.unieventos.model.Payment();
+	private co.edu.uniquindio.unieventos.model.vo.Payment crearPago(Payment payment) {
+		co.edu.uniquindio.unieventos.model.vo.Payment pago = new co.edu.uniquindio.unieventos.model.vo.Payment();
 		pago.setId(payment.getId().toString());
 		pago.setTimestamp(payment.getDateCreated().toLocalDateTime());
 		pago.setStatus(payment.getStatus());

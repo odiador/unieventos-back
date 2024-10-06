@@ -15,7 +15,7 @@ import co.edu.uniquindio.unieventos.exceptions.InvalidLoginException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidPasswordException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
-import co.edu.uniquindio.unieventos.model.Account;
+import co.edu.uniquindio.unieventos.model.documents.Account;
 import jakarta.validation.Valid;
 
 public interface AccountService {

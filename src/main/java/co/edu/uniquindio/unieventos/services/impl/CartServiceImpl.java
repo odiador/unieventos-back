@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import co.edu.uniquindio.unieventos.dto.carts.CreateCartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.CreateCartDetailDTO;
-import co.edu.uniquindio.unieventos.model.Cart;
-import co.edu.uniquindio.unieventos.model.CartDetail;
+import co.edu.uniquindio.unieventos.model.documents.Cart;
+import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.repositories.CartRepository;
 import co.edu.uniquindio.unieventos.services.CartService;
 

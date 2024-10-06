@@ -1,9 +1,11 @@
-package co.edu.uniquindio.unieventos.model;
+package co.edu.uniquindio.unieventos.model.documents;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
+import co.edu.uniquindio.unieventos.model.vo.Payment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

@@ -14,7 +14,7 @@ import co.edu.uniquindio.unieventos.controllers.AuthController;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
-import co.edu.uniquindio.unieventos.model.Account;
+import co.edu.uniquindio.unieventos.model.documents.Account;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

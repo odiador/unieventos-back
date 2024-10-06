@@ -1,6 +1,6 @@
-package co.edu.uniquindio.unieventos.model;
+package co.edu.uniquindio.unieventos.model.vo;
 
-import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +13,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class OrderDetail {
+public class UserData {
 
+    @Id
     private String id;
-    private ObjectId eventId;
-    private String localityName;
-    private int quantity;
+	private String phone, adress, city, cedula, name;
 
 }

@@ -8,7 +8,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.edu.uniquindio.unieventos.dto.exceptions.ErrorDTO;
-import co.edu.uniquindio.unieventos.model.Role;
+import co.edu.uniquindio.unieventos.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;

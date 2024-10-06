@@ -3,7 +3,7 @@ package co.edu.uniquindio.unieventos.services;
 import java.util.List;
 
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
-import co.edu.uniquindio.unieventos.model.Coupon;
+import co.edu.uniquindio.unieventos.model.documents.Coupon;
 
 public interface CouponService {
 

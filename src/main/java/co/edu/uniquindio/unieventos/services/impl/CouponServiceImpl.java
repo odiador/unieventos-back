@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
-import co.edu.uniquindio.unieventos.model.Coupon;
-import co.edu.uniquindio.unieventos.model.CouponStatus;
+import co.edu.uniquindio.unieventos.model.documents.Coupon;
+import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
 import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.services.CouponService;
 

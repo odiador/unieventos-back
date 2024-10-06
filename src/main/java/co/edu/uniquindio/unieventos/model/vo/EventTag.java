@@ -1,13 +1,10 @@
-package co.edu.uniquindio.unieventos.model;
-
-import org.springframework.data.mongodb.core.mapping.Document;
+package co.edu.uniquindio.unieventos.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Document(collection = "eventtags")
 @Getter
 @Setter
 @NoArgsConstructor

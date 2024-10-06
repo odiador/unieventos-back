@@ -4,7 +4,7 @@ import java.util.Map;
 
 import com.mercadopago.resources.preference.Preference;
 
-import co.edu.uniquindio.unieventos.model.Order;
+import co.edu.uniquindio.unieventos.model.documents.Order;
 
 public interface OrderService {
 

@@ -6,8 +6,8 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.validation.annotation.Validated;
 
-import co.edu.uniquindio.unieventos.model.CouponStatus;
-import co.edu.uniquindio.unieventos.model.CouponType;
+import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
+import co.edu.uniquindio.unieventos.model.enums.CouponType;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 
