@@ -135,7 +135,7 @@ public class AccountServiceImpl implements AccountService {
 			throw new ConflictException("Tu cuenta no esta activa");
 		ValidationCode valCode = account.getPasswordRecuperationCode();
 		if (valCode != null)
-			validateTwoMinutes(valCode);
+			validate15Minutes(valCode);
 
 		ValidationCode newValCode = ValidationCode
 				.builder()
@@ -150,11 +150,11 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 
-	private void validateTwoMinutes(ValidationCode valCode) throws DelayException {
+	private void validate15Minutes(ValidationCode valCode) throws DelayException {
 		LocalDateTime now = LocalDateTime.now();
 		Duration duration = Duration.between(valCode.getTimestamp(), now);
-		if (duration.toSeconds() < 120)
-			throw new DelayException("Debes esperar 2 minutos antes de solicitar otro código");
+		if (duration.toMinutes() < 15)
+			throw new DelayException("Debes esperar 15 minutos antes de solicitar otro código");
 	}
 
 	@Override
@@ -175,10 +175,6 @@ public class AccountServiceImpl implements AccountService {
 	private boolean codeExpired(LocalDateTime timestamp) {
 		LocalDateTime now = LocalDateTime.now();
 		Duration duration = Duration.between(timestamp, now);
-		System.out.println("now: "+now);
-		System.out.println("timestamp: "+timestamp);
-		System.out.println("duration: "+duration);
-
 		return duration.toMinutes() > 15;
 	}
 
@@ -215,7 +211,7 @@ public class AccountServiceImpl implements AccountService {
 			throw new ConflictException("El estado de tu cuenta no permite esta acción");
 		ValidationCode valCode = account.getRegisterValidationCode();
 		if (valCode != null)
-			validateTwoMinutes(valCode);
+			validate15Minutes(valCode);
 
 		ValidationCode newValCode = ValidationCode
 				.builder()

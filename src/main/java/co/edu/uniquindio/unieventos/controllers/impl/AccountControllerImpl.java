@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.AccountController;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
-import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,26 +29,24 @@ public class AccountControllerImpl implements AccountController {
 
 	@Autowired
 	private AccountService accountService;
+	
+	private final AuthUtils authUtils;
 
 	@Override
 	@PutMapping("/edit")
 	public ResponseEntity<String> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
 			throws Exception {
-		verifyMail(account.email(), request);
+		authUtils.verifyMail(account.email(), request);
 
 		String result = accountService.editAccount(account);
 		return ResponseEntity.ok(result);
 	}
 
-	private void verifyMail(String email, HttpServletRequest request) throws UnauthorizedAccessException {
-		if (!email.equals(request.getAttribute("email")))
-			throw new UnauthorizedAccessException("No tienes permiso para editar esta cuenta.");
-	}
 
 	@Override
 	@DeleteMapping("/delete")
 	public ResponseEntity<String> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request) throws Exception {
-		verifyMail(dto.email(), request);
+		authUtils.verifyMail(dto.email(), request);
 		String result = accountService.deleteAccount(dto);
 		return ResponseEntity.ok(result);
 	}

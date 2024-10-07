@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class TokenFilter extends OncePerRequestFilter {
 
 	private final JWTUtils jwtUtils;
+	private final AuthUtils authUtils;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -58,7 +59,7 @@ public class TokenFilter extends OncePerRequestFilter {
 				// Si la petición es para la ruta /api/cliente se verifica que el token exista y
 				// que el rol sea CLIENTE
 				if (requestURI.startsWith("/api/clients")) {
-					error = validateRole(request, Role.CLIENT);
+					error = authUtils.validateRoleMinClient(request);
 				} else {
 					error = false;
 				}
@@ -85,13 +86,6 @@ public class TokenFilter extends OncePerRequestFilter {
 			}
 		}
 
-	}
-
-	private boolean validateRole(HttpServletRequest request, Role role) {
-		Object attribute = request.getAttribute("role");
-		if (attribute == null)
-			return true;
-		return !role.name().equals(attribute.toString());
 	}
 
 	private void crearRespuestaError(String message, int code, HttpServletResponse response) throws IOException {
