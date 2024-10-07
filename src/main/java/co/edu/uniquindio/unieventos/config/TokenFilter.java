@@ -88,7 +88,10 @@ public class TokenFilter extends OncePerRequestFilter {
 	}
 
 	private boolean validateRole(HttpServletRequest request, Role role) {
-		return !role.name().equals(request.getAttribute("role").toString());
+		Object attribute = request.getAttribute("role");
+		if (attribute == null)
+			return true;
+		return !role.name().equals(attribute.toString());
 	}
 
 	private void crearRespuestaError(String message, int code, HttpServletResponse response) throws IOException {
