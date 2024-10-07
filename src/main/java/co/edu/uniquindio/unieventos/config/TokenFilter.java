@@ -42,15 +42,23 @@ public class TokenFilter extends OncePerRequestFilter {
 			String requestURI = request.getRequestURI();
 
 			// Se obtiene el token de la petición del encabezado del mensaje HTTP
-			String token = getToken(request);
+			String token = jwtUtils.getToken(request);
+			if (token != null) {
+				Jws<Claims> jws = jwtUtils.parseJwt(token);
+				Claims payload = jws.getPayload();
+				request.setAttribute("email", payload.getSubject());
+				request.setAttribute("id", payload.get("id"));
+				request.setAttribute("name", payload.get("name"));
+				request.setAttribute("role", payload.get("role"));
+			}
 			boolean error = true;
 
 			try {
 
 				// Si la petición es para la ruta /api/cliente se verifica que el token exista y
 				// que el rol sea CLIENTE
-				if (requestURI.startsWith("/api/client")) {
-					error = validarToken(token, Role.CLIENT);
+				if (requestURI.startsWith("/api/clients")) {
+					error = validateRole(request, Role.CLIENT);
 				} else {
 					error = false;
 				}
@@ -79,9 +87,8 @@ public class TokenFilter extends OncePerRequestFilter {
 
 	}
 
-	private String getToken(HttpServletRequest req) {
-		String header = req.getHeader("Authorization");
-		return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : null;
+	private boolean validateRole(HttpServletRequest request, Role role) {
+		return !role.name().equals(request.getAttribute("role").toString());
 	}
 
 	private void crearRespuestaError(String message, int code, HttpServletResponse response) throws IOException {
@@ -92,17 +99,6 @@ public class TokenFilter extends OncePerRequestFilter {
 		response.getWriter().write(new ObjectMapper().writeValueAsString(dto));
 		response.getWriter().flush();
 		response.getWriter().close();
-	}
-
-	private boolean validarToken(String token, Role role) {
-		boolean error = true;
-		if (token != null) {
-			Jws<Claims> jws = jwtUtils.parseJwt(token);
-			if (Role.valueOf(jws.getPayload().get("rol").toString()) == role) {
-				error = false;
-			}
-		}
-		return error;
 	}
 
 }

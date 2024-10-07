@@ -1,23 +1,37 @@
 package co.edu.uniquindio.unieventos.dto.coupons;
 
-import java.time.LocalDateTime;
-
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.validation.annotation.Validated;
 
+import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFormat;
+import co.edu.uniquindio.unieventos.misc.validation.ValidEnum;
 import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
 import co.edu.uniquindio.unieventos.model.enums.CouponType;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record CouponDTO(
 		
-		@Range(min = 0,max = 100) float discount,
-		@Validated @NotBlank LocalDateTime expiryDate,
-		@Length(min = 6, max = 6) String code,
-		@NotBlank CouponStatus status,
-		@NotBlank CouponType type,
-		@NotBlank @Max(50) String name
-		
-) {}
+		String code,
+
+		@NotNull
+		@Range(min = 0, max = 100) 
+		Float discount,
+
+		@NotNull
+        @ValidDateTimeFormat
+		String expiryDate,
+
+		@ValidEnum(enumClass = CouponStatus.class, message = "Ingresa un status valido")
+		@NotNull
+		String status,
+
+		@ValidEnum(enumClass = CouponType.class, message = "Ingresa un tipo valido")
+		@NotNull 
+		String type, 
+
+		@NotNull
+		@Length(min = 0, max = 50) 
+		String name
+
+) {
+}

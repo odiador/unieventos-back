@@ -11,15 +11,15 @@ import co.edu.uniquindio.unieventos.model.enums.AccountStatus;
 @Repository
 public interface AccountRepository extends MongoRepository<Account, String> {
 
-	Optional<Account> findByUser_Id(String userId);
-
 	Optional<Account> findByEmail(String email);
 
-	boolean existsByEmailAndUser_Cedula(String email, String cedula);
+	boolean existsByEmailOrUser_Cedula(String email, String cedula);
+
+	boolean existsByEmail(String email);
 
 	boolean existsByEmailAndStatus(String email, AccountStatus status);
 
 	Optional<Account> findByEmailAndPassword(String email, String password);
 
-    Optional<Account> findByUser_Cedula(String id);
+	Optional<Account> findByUser_Cedula(String id);
 }

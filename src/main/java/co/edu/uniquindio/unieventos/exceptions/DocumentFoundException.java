@@ -1,6 +1,6 @@
 package co.edu.uniquindio.unieventos.exceptions;
 
-public class DocumentFoundException extends Exception {
+public class DocumentFoundException extends ConflictException {
 
 	/**
 	 * 

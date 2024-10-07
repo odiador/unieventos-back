@@ -5,19 +5,26 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uniquindio.unieventos.controllers.AccountController;
+import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
+import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.services.AccountService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/clients")
 @CrossOrigin
+@RequiredArgsConstructor
 public class AccountControllerImpl implements AccountController {
 
 	@Autowired
@@ -25,23 +32,31 @@ public class AccountControllerImpl implements AccountController {
 
 	@Override
 	@PutMapping("/edit")
-	public ResponseEntity<String> editAccount(@RequestBody UserDataDTO account) throws Exception {
+	public ResponseEntity<String> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
+			throws Exception {
+		verifyMail(account.email(), request);
+
 		String result = accountService.editAccount(account);
 		return ResponseEntity.ok(result);
 	}
 
+	private void verifyMail(String email, HttpServletRequest request) throws UnauthorizedAccessException {
+		if (!email.equals(request.getAttribute("email")))
+			throw new UnauthorizedAccessException("No tienes permiso para editar esta cuenta.");
+	}
+
 	@Override
-	@DeleteMapping("/delete/{id}")
-	public ResponseEntity<String> deleteAccount(@PathVariable String code) throws Exception {
-		// TODO uso esto? ResponseEntity<String> deleteAccount(@PathVariable String code, HttpServletRequest request)
-		String result = accountService.deleteAccount(code);
+	@DeleteMapping("/delete")
+	public ResponseEntity<String> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request) throws Exception {
+		verifyMail(dto.email(), request);
+		String result = accountService.deleteAccount(dto);
 		return ResponseEntity.ok(result);
 	}
 
 	@Override
-	@GetMapping("/info/{id}")
-	public ResponseEntity<UserDataDTO> getAccountInfo(@PathVariable String id) throws Exception {
-		UserDataDTO accountInfo = accountService.getAccountInfo(id);
+	@GetMapping("/info")
+	public ResponseEntity<UserDataDTO> getAccountInfo(@RequestParam("email") String email) throws Exception {
+		UserDataDTO accountInfo = accountService.getAccountInfo(email);
 		return ResponseEntity.ok(accountInfo);
 	}
 }

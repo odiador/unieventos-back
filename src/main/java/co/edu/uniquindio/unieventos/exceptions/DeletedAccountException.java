@@ -1,11 +1,11 @@
 package co.edu.uniquindio.unieventos.exceptions;
 
-public class InvalidPasswordException extends Exception {
+public class DeletedAccountException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public InvalidPasswordException(String msg) { super(msg); }
+	public DeletedAccountException(String msg) { super(msg); }
 }

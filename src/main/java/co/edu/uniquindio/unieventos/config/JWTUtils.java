@@ -18,6 +18,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class JWTUtils {
@@ -49,5 +50,13 @@ public class JWTUtils {
        return Keys.hmacShaKeyFor(secretKeyBytes);
    }
 
-
+	public String getToken(HttpServletRequest req) {
+		String header = req.getHeader("Authorization");
+		return header != null && header.startsWith("Bearer ") ? header.replace("Bearer ", "") : null;
+	}
+	
+	public String getEmail(HttpServletRequest req) {
+		String token = getToken(req);
+		return parseJwt(token).getPayload().getSubject();
+	}
 }

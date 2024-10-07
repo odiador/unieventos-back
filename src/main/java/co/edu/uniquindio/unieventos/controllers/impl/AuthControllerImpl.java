@@ -3,6 +3,7 @@ package co.edu.uniquindio.unieventos.controllers.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uniquindio.unieventos.controllers.AuthController;
+import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
@@ -22,6 +24,7 @@ import jakarta.validation.constraints.Email;
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin
+@Validated
 public class AuthControllerImpl implements AuthController {
 
 	@Autowired
@@ -36,8 +39,22 @@ public class AuthControllerImpl implements AuthController {
 
 	@Override
 	@PostMapping("/password/recovery")
-	public ResponseEntity<?> sendRecuperationCode(@Valid @Email @RequestParam String email) throws Exception {
+	public ResponseEntity<?> sendRecuperationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
 		String result = accountService.sendRecuperationCode(email);
+		return ResponseEntity.ok(result);
+	}
+
+	@Override
+	@PostMapping("/activation/send")
+	public ResponseEntity<?> resendActivationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
+		String result = accountService.resendActivationCode(email);
+		return ResponseEntity.ok(result);
+	}
+
+	@Override
+	@PostMapping("/activation/activate")
+	public ResponseEntity<?> activateAccount(@Valid @RequestBody ActivateAccountDTO dto) throws Exception {
+		String result = accountService.activateAccount(dto);
 		return ResponseEntity.ok(result);
 	}
 
@@ -47,7 +64,7 @@ public class AuthControllerImpl implements AuthController {
 		String result = accountService.changePassword(change);
 		return ResponseEntity.ok(result);
 	}
-
+	
 	@Override
 	@PostMapping("/login")
 	public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) throws Exception {

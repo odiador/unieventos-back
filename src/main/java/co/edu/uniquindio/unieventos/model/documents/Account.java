@@ -29,7 +29,7 @@ public class Account {
 	private String id;
 	private Role role;
 	private String email, password;
-	private ValidationCode registerValidationCode, passwordValidationCode, loginValidationCode;
+	private ValidationCode registerValidationCode, passwordRecuperationCode, loginValidationCode;
 	private UserData user;
 	private List<ObjectId> subscribedCalendars, orders;
 	private LocalDateTime registrationTime;

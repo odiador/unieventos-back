@@ -22,17 +22,17 @@ public class EmailServiceImpl implements EmailService {
     @Value("${spring.mail.username}")
     private String sender;
 
-    @Override
-    public void sendVerificationMail(VerifyMailSendDTO dto) throws MailSendingException {
-        SimpleMailMessage mimeMessage = new SimpleMailMessage();
+	@Override
+	public void sendVerificationMail(VerifyMailSendDTO dto) throws MailSendingException {
+		SimpleMailMessage mimeMessage = new SimpleMailMessage();
 
-        mimeMessage.setFrom("amaeventosuq@gmail.com");
-        mimeMessage.setTo(dto.email());
-        mimeMessage.setSubject("Registro en Unieventos | Confirma tu cuenta");
-        mimeMessage.setText(String.format("Tu codigo es: %s", dto.verificationCode()));
-        mimeMessage.setCc(dto.email());
-        sendMessage(mimeMessage);
-    }
+		mimeMessage.setFrom("amaeventosuq@gmail.com");
+		mimeMessage.setTo(dto.email());
+		mimeMessage.setSubject("Registro en Unieventos | Confirma tu cuenta");
+		mimeMessage.setText(String.format("Tu codigo es: %s", dto.verificationCode()));
+		mimeMessage.setCc(dto.email());
+		sendMessage(mimeMessage);
+	}
 
     @Override
     public void sendPasswordRecoveryMail(RecoveryPasswordMailSendDTO dto) throws MailSendingException {

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +24,8 @@ public interface CouponRepository extends MongoRepository<Coupon, String> {
 	 * @return
 	 */
 	List<Coupon> findByStatusAndExpiryDateAfter(CouponStatus status, LocalDateTime currentDate);
+
+	List<Coupon> findByStatus(CouponStatus status, Pageable pageable);
 
 	boolean existsByCodeAndStatus(String code, CouponStatus status);
 }

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 
 public record LoginDTO(
 
-		@Email String email, 
+		@NotBlank @Email String email, 
 		@NotBlank @Length(min = 8, max = 15) String password
 
 ) {}
