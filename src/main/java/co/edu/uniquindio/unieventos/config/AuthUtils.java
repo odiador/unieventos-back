@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class AuthUtils {
-	
+
 	public boolean validateRole(HttpServletRequest request, Role role) {
 		Object attribute = request.getAttribute("role");
 		if (attribute == null)
@@ -48,5 +48,11 @@ public class AuthUtils {
 		default:
 			throw new UnauthorizedAccessException("No tienes permiso para realizar esta acción.");
 		}
+	}
+
+	public void verifyRoleAdmin(HttpServletRequest request) throws UnauthorizedAccessException {
+		Object roleAttr = request.getAttribute("role");
+		if (roleAttr == null || !roleAttr.toString().equals(Role.ADMINISTRATOR.name()))
+			throw new UnauthorizedAccessException("No tienes permiso para realizar esta acción.");
 	}
 }

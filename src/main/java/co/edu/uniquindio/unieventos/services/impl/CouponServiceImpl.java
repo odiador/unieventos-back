@@ -47,11 +47,6 @@ public class CouponServiceImpl implements CouponService {
 		System.out.println(optCoupon.orElse(null));
 		return coupon.getCode();
 	}
-//
-//	@Override
-//	public List<Coupon> getActiveCoupons() throws Exception {
-//		return couponRepository.findByStatusAndExpiryDateAfter(CouponStatus.AVAILABLE, LocalDateTime.now());
-//	}
 
 	@Override
 	public Coupon getCouponByCode(String code) throws Exception {

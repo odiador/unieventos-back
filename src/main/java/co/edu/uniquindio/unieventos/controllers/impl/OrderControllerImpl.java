@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.controllers.impl;
 
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +32,13 @@ public class OrderControllerImpl implements OrderController {
 	public ResponseEntity<?> doPayment(@RequestBody @Valid DoPaymentDTO dto) throws Exception {
 		Preference pref = orderService.realizarPago(dto.id());
 		return ResponseEntity.status(HttpStatus.CREATED).body(new MercadoPagoURLDTO(pref.getInitPoint()));
+	}
+
+	@Override
+	@PostMapping("/pay/notification")
+	public ResponseEntity<?> receiveMercadoPagoNotification(@RequestBody Map<String, Object> request) throws Exception {
+		orderService.receiveMercadoPagoNotification(request);
+		return ResponseEntity.ok("R");
 	}
 
 }

@@ -19,6 +19,7 @@ import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.config.MercadoPagoProps;
+import co.edu.uniquindio.unieventos.exceptions.PaymentException;
 import co.edu.uniquindio.unieventos.model.documents.Event;
 import co.edu.uniquindio.unieventos.model.documents.Order;
 import co.edu.uniquindio.unieventos.model.vo.Locality;
@@ -54,9 +55,16 @@ public class OrderServiceImpl implements OrderService {
 			Locality locality = new Locality("VIP", 12000, 1, 10);
 
 			// Crear el item de la pasarela
-			PreferenceItemRequest itemRequest = PreferenceItemRequest.builder().id(event.getId()).title(event.getName())
-					.pictureUrl(null).categoryId(event.getType().name()).quantity(item.getQuantity())
-					.currencyId("COP").unitPrice(BigDecimal.valueOf(locality.getPrice())).build();
+			PreferenceItemRequest itemRequest = PreferenceItemRequest
+					.builder()
+					.id(event.getId())
+					.title(event.getName())
+					.pictureUrl(null)
+					.categoryId(event.getType().name())
+					.quantity(item.getQuantity())
+					.currencyId("COP")
+					.unitPrice(BigDecimal.valueOf(locality.getPrice()))
+					.build();
 
 			itemsPasarela.add(itemRequest);
 		}
@@ -65,15 +73,20 @@ public class OrderServiceImpl implements OrderService {
 		MercadoPagoConfig.setAccessToken(customProperties.getAccesstoken());
 
 		// Configurar las urls de retorno de la pasarela (Frontend)
-		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder().success("URL PAGO EXITOS"
-				+ "O")
-				.failure("URL PAGO FALLIDO").pending("URL PAGO PENDIENTE").build();
+		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
+				.success("URL PAGO EXITOSO")
+				.failure("URL PAGO FALLIDO")
+				.pending("URL PAGO PENDIENTE").build();
 
 		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de
 		// retorno
-		PreferenceRequest preferenceRequest = PreferenceRequest.builder().backUrls(backUrls).items(itemsPasarela)
+		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
+		PreferenceRequest preferenceRequest = PreferenceRequest.builder()
+				.backUrls(backUrls)
+				.items(itemsPasarela)
 				.metadata(Map.of("id_orden", ordenGuardada.getId()))
-				.notificationUrl(customProperties.getNgrokurl()).build();
+				.notificationUrl(format)
+				.build();
 
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
@@ -87,7 +100,7 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public void recibirNotificacionMercadoPago(Map<String, Object> request) {
+	public void receiveMercadoPagoNotification(Map<String, Object> request) throws PaymentException {
 		try {
 
 			// Obtener el tipo de notificación
@@ -114,10 +127,10 @@ public class OrderServiceImpl implements OrderService {
 				co.edu.uniquindio.unieventos.model.vo.Payment pago = crearPago(payment);
 				orden.setPayment(pago);
 				repo.save(orden);
-			}
+			} 
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new PaymentException("No se pudo hacer el pago. Reason:" + e.getMessage());
 		}
 	}
 

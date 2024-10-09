@@ -8,7 +8,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import co.edu.uniquindio.unieventos.dto.exceptions.ErrorDTO;
-import co.edu.uniquindio.unieventos.model.enums.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
@@ -39,22 +38,26 @@ public class TokenFilter extends OncePerRequestFilter {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
 
+			boolean error = true;
+			try {
 			// Obtener la URI de la petición que se está realizando
 			String requestURI = request.getRequestURI();
 
 			// Se obtiene el token de la petición del encabezado del mensaje HTTP
-			String token = jwtUtils.getToken(request);
-			if (token != null) {
-				Jws<Claims> jws = jwtUtils.parseJwt(token);
-				Claims payload = jws.getPayload();
-				request.setAttribute("email", payload.getSubject());
-				request.setAttribute("id", payload.get("id"));
-				request.setAttribute("name", payload.get("name"));
-				request.setAttribute("role", payload.get("role"));
-			}
-			boolean error = true;
-
 			try {
+				String token = jwtUtils.getToken(request);
+				if (token != null) {
+					Jws<Claims> jws = jwtUtils.parseJwt(token);
+					Claims payload = jws.getPayload();
+					request.setAttribute("email", payload.getSubject());
+					request.setAttribute("id", payload.get("id"));
+					request.setAttribute("name", payload.get("name"));
+					request.setAttribute("role", payload.get("role"));
+				}
+			} catch (Exception e) {
+			}
+
+			
 
 				// Si la petición es para la ruta /api/cliente se verifica que el token exista y
 				// que el rol sea CLIENTE
