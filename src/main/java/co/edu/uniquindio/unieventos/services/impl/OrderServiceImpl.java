@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,13 +19,15 @@ import com.mercadopago.resources.payment.Payment;
 import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.config.MercadoPagoProps;
+import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventDTO;
+import co.edu.uniquindio.unieventos.dto.event.ReturnLocalityDTO;
+import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
-import co.edu.uniquindio.unieventos.model.documents.Event;
 import co.edu.uniquindio.unieventos.model.documents.Order;
-import co.edu.uniquindio.unieventos.model.vo.Locality;
 import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
 import co.edu.uniquindio.unieventos.repositories.OrderRepository;
-import co.edu.uniquindio.unieventos.services.EventService;
+import co.edu.uniquindio.unieventos.services.CalendarService;
 import co.edu.uniquindio.unieventos.services.OrderService;
 import lombok.RequiredArgsConstructor;
 
@@ -34,37 +36,52 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceImpl implements OrderService {
 
 	@Autowired
-	private EventService eventService;
+	private CalendarService calendarService;
 	@Autowired
 	private OrderRepository repo;
 	@Autowired
 	private MercadoPagoProps customProperties;
-	
+
 	@Override
 	public Preference realizarPago(String idOrden) throws Exception {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
 		List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
-
+		List<String> errors = new ArrayList<String>();
 		// Recorrer los items de la orden y crea los ítems de la pasarela
 		for (OrderDetail item : ordenGuardada.getItems()) {
 
-			// Obtener el evento y la localidad del ítem
-			Event event = eventService.obtenerEvento(item.getEventId().toString());
-			Locality locality = new Locality("VIP", 12000, 1, 10);
+			CalendarDTO calendar = calendarService.findCalendarById(item.getCalendarId().toString());
+			EventDTO event;
+			{
+				Optional<EventDTO> optional = calendar.events().stream()
+						.filter(e -> e.name().equals(item.getEventName())).findFirst();
+				if (optional.isEmpty()) {
+					errors.add(
+							String.format("El evento \"%s\" no fue encontrado en el calendario", item.getEventName()));
+					continue;
+				}
+				event = optional.get();
+			}
+			ReturnLocalityDTO locality;
+			{
 
+				Optional<ReturnLocalityDTO> optional = event.localities().stream()
+						.filter(l -> l.name().equals(item.getLocalityName())).findFirst();
+				if (optional.isEmpty()) {
+					errors.add(String.format("La localidad \"%s\" no fue encontrada en el evento %s",
+							item.getLocalityName(), item.getEventName()));
+					continue;
+				}
+				locality = optional.get();
+
+			}
 			// Crear el item de la pasarela
-			PreferenceItemRequest itemRequest = PreferenceItemRequest
-					.builder()
-					.id(event.getId())
-					.title(event.getName())
-					.pictureUrl(null)
-					.categoryId(event.getType().name())
-					.quantity(item.getQuantity())
-					.currencyId("COP")
-					.unitPrice(BigDecimal.valueOf(locality.getPrice()))
-					.build();
+			PreferenceItemRequest itemRequest = PreferenceItemRequest.builder().id(event.name())
+					.title(String.format("%s - %s", item.getCalendarId().toString(), event.name()))
+					.pictureUrl(event.eventImage()).categoryId(event.type().name()).quantity(item.getQuantity())
+					.currencyId("COP").unitPrice(BigDecimal.valueOf(locality.price())).build();
 
 			itemsPasarela.add(itemRequest);
 		}
@@ -73,20 +90,14 @@ public class OrderServiceImpl implements OrderService {
 		MercadoPagoConfig.setAccessToken(customProperties.getAccesstoken());
 
 		// Configurar las urls de retorno de la pasarela (Frontend)
-		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-				.success("URL PAGO EXITOSO")
-				.failure("URL PAGO FALLIDO")
-				.pending("URL PAGO PENDIENTE").build();
+		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder().success("URL PAGO EXITOSO")
+				.failure("URL PAGO FALLIDO").pending("URL PAGO PENDIENTE").build();
 
 		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de
 		// retorno
 		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
-		PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-				.backUrls(backUrls)
-				.items(itemsPasarela)
-				.metadata(Map.of("id_orden", ordenGuardada.getId()))
-				.notificationUrl(format)
-				.build();
+		PreferenceRequest preferenceRequest = PreferenceRequest.builder().backUrls(backUrls).items(itemsPasarela)
+				.metadata(Map.of("id_orden", ordenGuardada.getId())).notificationUrl(format).build();
 
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
@@ -124,10 +135,10 @@ public class OrderServiceImpl implements OrderService {
 
 				// Se obtiene la orden guardada en la base de datos y se le asigna el pago
 				Order orden = getOrder(idOrden);
-				co.edu.uniquindio.unieventos.model.vo.Payment pago = crearPago(payment);
+				co.edu.uniquindio.unieventos.model.vo.Payment pago = createPayment(payment);
 				orden.setPayment(pago);
 				repo.save(orden);
-			} 
+			}
 
 		} catch (Exception e) {
 			throw new PaymentException("No se pudo hacer el pago. Reason:" + e.getMessage());
@@ -135,16 +146,11 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public Order getOrder(String idOrden) {
-		ArrayList<OrderDetail> items = new ArrayList<OrderDetail>(
-				List.of(
-						OrderDetail.builder().eventId(ObjectId.get()).localityName("Armenia").id("armenia").quantity(2).build()
-						)
-				);
-		return Order.builder().clientId(ObjectId.get()).items(items).id(idOrden).build();
+	public Order getOrder(String idOrden) throws DocumentNotFoundException {
+		return repo.findById(idOrden).orElseThrow(() -> new DocumentNotFoundException("La orden no fue encontrada"));
 	}
 
-	private co.edu.uniquindio.unieventos.model.vo.Payment crearPago(Payment payment) {
+	private co.edu.uniquindio.unieventos.model.vo.Payment createPayment(Payment payment) {
 		co.edu.uniquindio.unieventos.model.vo.Payment pago = new co.edu.uniquindio.unieventos.model.vo.Payment();
 		pago.setId(payment.getId().toString());
 		pago.setTimestamp(payment.getDateCreated().toLocalDateTime());

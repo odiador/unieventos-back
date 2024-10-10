@@ -15,8 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderDetail {
 
-    private String id;
-    private ObjectId eventId;
+    private ObjectId calendarId;
+    private String eventName;
     private String localityName;
     private int quantity;
 

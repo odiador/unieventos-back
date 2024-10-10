@@ -67,8 +67,9 @@ public class CouponServiceImpl implements CouponService {
 
 	@Override
 	public List<CouponInfoDTO> getCouponsAdmin(@Valid GetCouponsDTO dto) throws Exception {
+		CouponStatus status = CouponStatus.valueOf(dto.status());
 		return couponRepository
-				.findByStatus(dto.status(), PageRequest.of(dto.page(), dto.size()))
+				.findByStatus(status, PageRequest.of(dto.page(), dto.size()))
 				.stream()
 				.map(mapper())
 				.collect(Collectors.toList());

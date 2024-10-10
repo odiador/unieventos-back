@@ -13,5 +13,5 @@ public interface OrderService {
 
 	void receiveMercadoPagoNotification(Map<String, Object> request) throws PaymentException;
 
-	Order getOrder(String idOrden);
+	Order getOrder(String idOrden) throws Exception;
 }

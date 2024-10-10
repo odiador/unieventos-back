@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import co.edu.uniquindio.unieventos.dto.exceptions.ErrorDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldsDTO;
+import co.edu.uniquindio.unieventos.dto.exceptions.MultiErrorDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DeletedAccountException;
@@ -17,6 +18,7 @@ import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidCodeException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidLoginException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
+import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.NotVerifiedAccountException;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 
@@ -75,10 +77,11 @@ public class ExceptionHandling {
 	public ResponseEntity<?> handlerException(DelayException e) {
 		return ResponseEntity.status(429).body(new ErrorDTO(429, e.getMessage()));
 	}
-
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handlerException(Exception e) {
-		return ResponseEntity.status(500).body(new ErrorDTO(500, e.getMessage()));
+	
+	@ExceptionHandler(MultiErrorException.class)
+	public ResponseEntity<?> handlerException(MultiErrorException e) {
+		return ResponseEntity.status(e.getCode()).body(new MultiErrorDTO(e.getCode(), e.getMessage(), e.getErrors()));
 	}
+
 
 }

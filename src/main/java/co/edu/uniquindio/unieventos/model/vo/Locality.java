@@ -1,8 +1,7 @@
 package co.edu.uniquindio.unieventos.model.vo;
 
-import com.google.auto.value.AutoValue.Builder;
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,9 +9,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Locality {
 	@EqualsAndHashCode.Include

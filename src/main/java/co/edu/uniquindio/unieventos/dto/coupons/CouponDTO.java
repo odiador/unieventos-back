@@ -3,7 +3,7 @@ package co.edu.uniquindio.unieventos.dto.coupons;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.Range;
 
-import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFormat;
+import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFutureFormat;
 import co.edu.uniquindio.unieventos.misc.validation.ValidEnum;
 import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
 import co.edu.uniquindio.unieventos.model.enums.CouponType;
@@ -18,7 +18,7 @@ public record CouponDTO(
 		Float discount,
 
 		@NotNull
-        @ValidDateTimeFormat
+        @ValidDateTimeFutureFormat
 		String expiryDate,
 
 		@ValidEnum(enumClass = CouponStatus.class, message = "Ingresa un status valido")
