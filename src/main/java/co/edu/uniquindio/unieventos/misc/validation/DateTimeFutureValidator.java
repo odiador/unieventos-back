@@ -7,7 +7,7 @@ import java.time.format.DateTimeParseException;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class DateTimeValidator implements ConstraintValidator<ValidDateTimeFormat, String> {
+public class DateTimeFutureValidator implements ConstraintValidator<ValidDateTimeFutureFormat, String> {
 
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
 
