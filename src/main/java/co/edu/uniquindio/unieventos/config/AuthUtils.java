@@ -31,8 +31,18 @@ public class AuthUtils {
 	}
 
 	public void verifyMail(String email, HttpServletRequest request) throws UnauthorizedAccessException {
-		if (!email.equals(request.getAttribute("email")))
+		if (!email.equals(getMail(request)))
 			throw new UnauthorizedAccessException("No tienes permiso para editar esta cuenta.");
+	}
+
+	public String getMail(HttpServletRequest request) {
+		Object attribute = request.getAttribute("email");
+		return attribute == null ? null : (String) attribute;
+	}
+
+	public String getId(HttpServletRequest request) {
+		Object attribute = request.getAttribute("id");
+		return attribute == null ? null : (String) attribute;
 	}
 
 	public void verifyMinRoleClient(HttpServletRequest request) throws UnauthorizedAccessException {
@@ -51,8 +61,15 @@ public class AuthUtils {
 	}
 
 	public void verifyRoleAdmin(HttpServletRequest request) throws UnauthorizedAccessException {
+		verifyRole(request, Role.ADMINISTRATOR);
+	}
+	public void verifyRoleClient(HttpServletRequest request) throws UnauthorizedAccessException {
+		verifyRole(request, Role.CLIENT);
+	}
+
+	public void verifyRole(HttpServletRequest request, Role role) throws UnauthorizedAccessException {
 		Object roleAttr = request.getAttribute("role");
-		if (roleAttr == null || !roleAttr.toString().equals(Role.ADMINISTRATOR.name()))
+		if (roleAttr == null || !roleAttr.toString().equals(role.name()))
 			throw new UnauthorizedAccessException("No tienes permiso para realizar esta acción.");
 	}
 }

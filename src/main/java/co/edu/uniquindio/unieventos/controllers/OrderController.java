@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 public interface OrderController {
@@ -13,4 +14,5 @@ public interface OrderController {
 
 	ResponseEntity<?> receiveMercadoPagoNotification(Map<String, Object> request) throws Exception;
 
+	ResponseEntity<?> getPurchaseHistory(HttpServletRequest request) throws Exception;
 }

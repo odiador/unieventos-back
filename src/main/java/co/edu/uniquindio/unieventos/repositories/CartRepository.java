@@ -1,6 +1,7 @@
 package co.edu.uniquindio.unieventos.repositories;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,8 @@ import co.edu.uniquindio.unieventos.model.documents.Cart;
 public interface CartRepository extends MongoRepository<Cart, String> {
 
 	List<Cart> findByUserId(String userId);
+	
+	Optional<Cart> findByIdAndUserId(String id, String userId);
 
 	/**
 	 * Encuentra el carrito activo del Usuario

@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CouponDTO(
 		
+		@Length(min = 1, max = 50)
 		String code,
 
 		@NotNull

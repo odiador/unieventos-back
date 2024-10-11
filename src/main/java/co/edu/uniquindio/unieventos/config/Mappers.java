@@ -1,16 +1,28 @@
 package co.edu.uniquindio.unieventos.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
+import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
+import co.edu.uniquindio.unieventos.dto.carts.CartDTO;
+import co.edu.uniquindio.unieventos.dto.carts.CartDetailDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
 import co.edu.uniquindio.unieventos.dto.event.ReturnLocalityDTO;
+import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.OrderDetailDTO;
+import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.model.documents.Calendar;
+import co.edu.uniquindio.unieventos.model.documents.Cart;
+import co.edu.uniquindio.unieventos.model.documents.Order;
+import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.model.vo.Event;
+import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
 import lombok.Getter;
 
 @Component
@@ -55,9 +67,82 @@ public class Mappers {
 			c.getId(),
 			c.getName(),
 			c.getDescription(),
-			c.getEvents()==null?null:c.getEvents().stream()
+			c.getEvents() == null ? null
+					: c.getEvents().stream()
 			.map(eventMapper)
 			.collect(Collectors.toList()),
 			c.getImage(),
 			c.getBannerImage());
+
+	private final Function<Order, OrderDTO> orderMapper = e -> {
+		List<OrderDetailDTO> items = new ArrayList<>();
+		if (e.getItems() == null)
+			items = e.getItems().stream()
+			.map(this.orderDetailToDto)
+			.collect(Collectors.toList());
+		return new OrderDTO(e.getId(), e.getClientId(), e.getTimestamp(), e.getPayment(), items, e.getStatus(), e.getTotal(), e.getCouponId());
+	};
+	
+	private final Function<CartDetail, OrderDetail> cartToOrderMapper = c -> {
+		return OrderDetail.builder()
+				.calendarId(c.getCalendarId())
+				.eventName(c.getEventName())
+				.quantity(c.getQuantity())
+				.localityName(c.getLocalityName())
+				.build();
+	};
+	
+	private final Function<AddItemCartDTO, CartDetail> cartDetailMapper = (detail)-> {
+		return CartDetail.builder()
+				.eventName(detail.eventName())
+				.localityName(detail.localityName())
+				.quantity(detail.quantity())
+				.build();
+	};
+	private final Function<CartDetail, CartDetailDTO> cartDetailToDTOMapper = (detail) -> {
+		return new CartDetailDTO(
+				detail.getQuantity(), 
+				detail.getCalendarId(), 
+				detail.getEventName(),
+				detail.getLocalityName());
+	};
+
+	private final Function<Cart, CartDTO> cartToDTOMapper = cart -> {
+		List<CartDetailDTO> items = new ArrayList<>();
+		if (cart.getItems() != null)
+			items = cart.getItems().stream()
+			.map(this.cartDetailToDTOMapper)
+			.collect(Collectors.toList()); 
+		return new CartDTO(cart.getId(), cart.getDate(), items, cart.getUserId());
+	};
+
+	private final Function<CartDetail, OrderDetail> mapper = e -> {
+		return OrderDetail.builder()
+				.calendarId(e.getCalendarId())
+				.eventName(e.getEventName())
+				.localityName(e.getLocalityName())
+				.quantity(e.getQuantity())
+				.build();
+	};
+
+	private final Function<Order, PurchaseDTO> orderToPurchaseMapper = e -> {
+		List<OrderDetailDTO> items = new ArrayList<>();
+		if (e.getItems() != null)
+			items = e.getItems().stream()
+			.map(this.orderDetailToDto)
+			.collect(Collectors.toList());
+		return new PurchaseDTO(
+				e.getClientId().toString(),
+				e.getTimestamp(),
+				e.getPayment(),
+				items,
+				e.getTotal(),
+				e.getCouponId());
+	};
+
+	private final Function<OrderDetail, OrderDetailDTO> orderDetailToDto = e -> {
+		return new OrderDetailDTO(e.getCalendarId(), e.getEventName(), e.getLocalityName(), e.getPrice(),
+				e.getQuantity());
+	};
+
 }

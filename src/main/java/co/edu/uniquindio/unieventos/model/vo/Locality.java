@@ -20,4 +20,7 @@ public class Locality {
 	private int ticketsSold;
 	private int maxCapability;
 
+	public int getFreeTickets() {
+		return maxCapability - ticketsSold;
+	}
 }

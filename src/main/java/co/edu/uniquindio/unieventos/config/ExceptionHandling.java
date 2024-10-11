@@ -18,6 +18,7 @@ import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidCodeException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidLoginException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
+import co.edu.uniquindio.unieventos.exceptions.MaxCartsCreatedException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.NotVerifiedAccountException;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
@@ -77,11 +78,20 @@ public class ExceptionHandling {
 	public ResponseEntity<?> handlerException(DelayException e) {
 		return ResponseEntity.status(429).body(new ErrorDTO(429, e.getMessage()));
 	}
-	
+
+	@ExceptionHandler(MaxCartsCreatedException.class)
+	public ResponseEntity<?> handlerException(MaxCartsCreatedException e) {
+		return ResponseEntity.status(409).body(new ErrorDTO(409, e.getMessage()));
+	}
+
 	@ExceptionHandler(MultiErrorException.class)
 	public ResponseEntity<?> handlerException(MultiErrorException e) {
 		return ResponseEntity.status(e.getCode()).body(new MultiErrorDTO(e.getCode(), e.getMessage(), e.getErrors()));
 	}
 
+	@ExceptionHandler(Exception.class)
+	public ResponseEntity<?> handlerException(Exception e) {
+		return ResponseEntity.status(500).body(new ErrorDTO(500, e.getMessage()));
+	}
 
 }

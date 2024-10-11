@@ -7,11 +7,11 @@ import lombok.Getter;
 public class MultiErrorException extends Exception {
 
 	@Getter
-	private List<String> errors;
+	private List<?> errors;
 	@Getter
 	private int code;
 
-	public MultiErrorException(String msg, List<String> errors, int code) {
+	public MultiErrorException(String msg, List<?> errors, int code) {
 		super(msg);
 		this.errors = errors;
 		this.code = code;

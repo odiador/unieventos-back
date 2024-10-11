@@ -21,13 +21,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Coupon {
 
-    @Id
-    private String id;
-    private float discount;
-    private LocalDateTime expiryDate;
-    private String code;
-    private CouponStatus status;
-    private CouponType type;
-    private String name;
+	@Id
+	private String id;
+	private float discount;
+	private LocalDateTime expiryDate;
+	private String code;
+	private CouponStatus status;
+	private CouponType type;
+	private String name;
+	private String calendarId;
+	private String eventName;
+
+	public boolean isForSpecialEvent() {
+		return calendarId != null && eventName != null;
+	}
 
 }

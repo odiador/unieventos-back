@@ -2,7 +2,6 @@ package co.edu.uniquindio.unieventos.services.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,8 +42,6 @@ public class CouponServiceImpl implements CouponService {
 				.name(couponDTO.name())
 				.build();
 		couponRepository.save(coupon);
-		Optional<Coupon> optCoupon = couponRepository.findByCode(code);
-		System.out.println(optCoupon.orElse(null));
 		return coupon.getCode();
 	}
 

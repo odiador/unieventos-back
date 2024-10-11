@@ -4,6 +4,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import co.edu.uniquindio.unieventos.model.enums.OrderStatus;
 import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
 import co.edu.uniquindio.unieventos.model.vo.Payment;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class Order {
     private LocalDateTime timestamp;
     private Payment payment;
     private List<OrderDetail> items;
+    private OrderStatus status;
     private float total;
     private ObjectId couponId;
 

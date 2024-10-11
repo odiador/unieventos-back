@@ -1,7 +1,5 @@
 package co.edu.uniquindio.unieventos.model.vo;
 
-import org.bson.types.ObjectId;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class OrderDetail {
 
-    private ObjectId calendarId;
+    private String calendarId;
     private String eventName;
     private String localityName;
+    private float price;
     private int quantity;
 
 }
