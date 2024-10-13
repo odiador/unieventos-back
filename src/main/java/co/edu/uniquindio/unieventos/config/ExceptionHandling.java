@@ -22,6 +22,7 @@ import co.edu.uniquindio.unieventos.exceptions.MaxCartsCreatedException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.NotVerifiedAccountException;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
+import jakarta.validation.ConstraintViolationException;
 
 @RestControllerAdvice
 public class ExceptionHandling {
@@ -87,5 +88,10 @@ public class ExceptionHandling {
 	@ExceptionHandler(MultiErrorException.class)
 	public ResponseEntity<?> handlerException(MultiErrorException e) {
 		return ResponseEntity.status(e.getCode()).body(new MultiErrorDTO(e.getCode(), e.getMessage(), e.getErrors()));
+	}
+
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<?> handlerException(ConstraintViolationException e) {
+		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
 	}
 }
