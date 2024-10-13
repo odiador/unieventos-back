@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
 	implementation 'com.mercadopago:sdk-java:2.1.27'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'

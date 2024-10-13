@@ -75,10 +75,13 @@ public class OrderServiceImpl implements OrderService {
 	private Mappers mappers;
 
 	@Override
-	public Preference realizarPago(String idOrden) throws Exception {
+	public Preference realizarPago(String idOrden, String userId) throws Exception {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
+		if (!ordenGuardada.getClientId().toString().equals(userId)) 
+			throw new UnauthorizedAccessException("La orden no está a tu nombre");
+			
 		List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
 		List<String> errors = new ArrayList<String>();
 		// Recorrer los items de la orden y crea los ítems de la pasarela
@@ -183,6 +186,7 @@ public class OrderServiceImpl implements OrderService {
 		return repo.findById(idOrden).orElseThrow(() -> new DocumentNotFoundException("La orden no fue encontrada"));
 	}
 
+	@Override
 	public OrderDTO createOrder(CreateOrderDTO dto) throws DocumentNotFoundException, CartEmptyException, MultiErrorException {
 		Cart cart = cartRepository.findById(dto.cartId())
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito con ese ID no fue encontrado"));
@@ -210,47 +214,42 @@ public class OrderServiceImpl implements OrderService {
 		List<OrderDetail> items = new ArrayList<>();
 
 		float subtotal = 0f; 
+		List<CartDetail> cartItems = cart.getItems();
+		if (coupon != null && coupon.isForSpecialEvent()) {
+			final Coupon aux = coupon;
+			Calendar calendar = calendarRepository.findById(coupon.getCalendarId())
+					.orElseThrow(() -> new DocumentNotFoundException("El calendario no se pudo encontrar"));
 
-		if (coupon != null) {
-			if (coupon.isForSpecialEvent()) {
-				final Coupon aux = coupon;
-				Calendar calendar = calendarRepository.findById(coupon.getCalendarId())
-						.orElseThrow(() -> new DocumentNotFoundException("El calendario no se pudo encontrar"));
+			Event eventFound = calendar.getEvents().stream().filter(event -> event.getName().equals(aux.getEventName()))
+					.findFirst().orElseThrow(() -> new DocumentNotFoundException("El evento no se pudo encontrar"));
 
-				Event eventFound = calendar.getEvents().stream()
-						.filter(event -> event.getName().equals(aux.getEventName())).findFirst()
-						.orElseThrow(() -> new DocumentNotFoundException("El evento no se pudo encontrar"));
-
-				for (CartDetail detail : cart.getItems()) {
-					if (!calendar.getId().equals(detail.getCalendarId())) {
-						errors.add(new BiErrorStringDTO("calendar", calendar.getName()));
-						continue;
-					}
-
-					if (!detail.getEventName().equals(eventFound.getName())) {
-						errors.add(new BiErrorStringDTO("event", detail.getEventName()));
-						continue;
-					}
-
-					Locality locality = eventFound.getLocalities().stream()
-							.filter(loc -> loc.getName().equals(detail.getLocalityName()))
-							.findFirst()
-							.orElse(null);
-
-					if (locality == null) {
-						errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
-						continue;
-					}
-
-					OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
-					orderDetail.setPrice(locality.getPrice());
-					subtotal += locality.getPrice();
-					items.add(orderDetail);
+			for (CartDetail detail : cartItems) {
+				if (!calendar.getId().equals(detail.getCalendarId())) {
+					errors.add(new BiErrorStringDTO("calendar", calendar.getName()));
+					continue;
 				}
 
-				if (!errors.isEmpty())
-					throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
+				if (!detail.getEventName().equals(eventFound.getName())) {
+					errors.add(new BiErrorStringDTO("event", detail.getEventName()));
+					continue;
+				}
+
+				Locality locality = eventFound.getLocalities().stream()
+						.filter(loc -> loc.getName().equals(detail.getLocalityName())).findFirst().orElse(null);
+
+				if (locality == null) {
+					errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
+					continue;
+				}
+
+				OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
+				orderDetail.setPrice(locality.getPrice());
+				subtotal += locality.getPrice();
+				items.add(orderDetail);
 			}
+
+			if (!errors.isEmpty())
+				throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
 
 		} else {
 			for (CartDetail detail : cart.getItems()) {
@@ -285,17 +284,18 @@ public class OrderServiceImpl implements OrderService {
 		}
 		if (coupon.getType() == CouponType.UNIQUE)
 			coupon.setStatus(CouponStatus.UNAVAILABLE);
+		if (coupon != null)
+			subtotal = subtotal * (100 - coupon.getDiscount());
 		Order order = Order.builder()
-				.clientId(new ObjectId(dto.email()))
+				.clientId(new ObjectId(cart.getUserId()))
 				.couponId(new ObjectId(coupon.getId()))
 				.timestamp(LocalDateTime.now())
+				.items(items)
 				.status(OrderStatus.CREATED)
 				.total(subtotal)
 				.build();
 		
-		repo.save(order);
-		
-		return mappers.getOrderMapper().apply(order);
+		return mappers.getOrderMapper().apply(repo.save(order));
 	}
 
 	private co.edu.uniquindio.unieventos.model.vo.Payment createPayment(Payment payment) {

@@ -5,7 +5,6 @@ import org.hibernate.validator.constraints.Length;
 import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public record CreateOrderDTO(
 		
@@ -17,7 +16,6 @@ public record CreateOrderDTO(
 		@Email
 		String email,
 		
-		@NotNull
 		@Length(min = 1, max = 50)
 		String couponCode
 		) {

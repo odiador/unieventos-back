@@ -90,8 +90,8 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String editAccount(@Valid EditUserDataDTO dto) throws Exception {
-		Optional<Account> accountOpt = repo.findByEmail(dto.email());
+	public String editAccount(String email, @Valid EditUserDataDTO dto) throws Exception {
+		Optional<Account> accountOpt = repo.findByEmail(email);
 		if (accountOpt.isEmpty())
 			throw new DocumentNotFoundException("La cuenta no existe");
 		Account account = accountOpt.get();
@@ -167,7 +167,8 @@ public class AccountServiceImpl implements AccountService {
 			throw new InvalidCodeException("Tu código ya está vencido");
 		if (!dto.passwordCode().equals(recuperationCode.getCode()))
 			throw new InvalidCodeException("Tu código es inválido");
-		account.setPassword(dto.newPassword());
+
+		account.setPassword(encryptPassword(dto.newPassword()));
 		repo.save(account);
 		return null;
 	}

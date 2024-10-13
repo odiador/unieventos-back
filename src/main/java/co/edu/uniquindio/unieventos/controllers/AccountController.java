@@ -1,7 +1,6 @@
 package co.edu.uniquindio.unieventos.controllers;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
@@ -15,7 +14,7 @@ public interface AccountController {
 
 	ResponseEntity<?> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request) throws Exception;
 
-	ResponseEntity<?> getAccountInfo(@PathVariable String id) throws Exception;
+	ResponseEntity<?> getAccountInfo(HttpServletRequest request) throws Exception;
 
 	ResponseEntity<String> deleteAccount(@Valid LoginDTO dto, HttpServletRequest request) throws Exception;
 

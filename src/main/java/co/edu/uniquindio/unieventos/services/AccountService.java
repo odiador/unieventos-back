@@ -19,7 +19,7 @@ public interface AccountService {
 
 	Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException;
 
-	String editAccount(@Valid EditUserDataDTO account) throws Exception;
+	String editAccount(String mail, @Valid EditUserDataDTO account) throws Exception;
 
 	String deleteAccount(@Valid LoginDTO dto) throws Exception;
 

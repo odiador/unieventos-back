@@ -20,5 +20,5 @@ public interface EventController {
 
 	ResponseEntity<?> getEvents(@Valid SearchEventDTO dto) throws Exception;
 
-	ResponseEntity<?> deleteEvent(@Valid FindEventDTO dto) throws Exception;
+	ResponseEntity<?> deleteEvent(@Valid FindEventDTO dto, HttpServletRequest request) throws Exception;
 }

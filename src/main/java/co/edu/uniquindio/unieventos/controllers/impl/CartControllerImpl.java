@@ -14,6 +14,7 @@ import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.RemoveItemCartDTO;
 import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import co.edu.uniquindio.unieventos.services.CartService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -31,6 +32,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/create")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> createCart(HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleClient(request);
 		String id = authUtils.getId(request);
@@ -39,6 +41,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/cart/addItem")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> addItemToCart(@Valid @RequestBody AddItemCartDTO dto, HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleClient(request);
 		String id = authUtils.getId(request);
@@ -47,6 +50,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/cart/removeItem")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> removeItemFromCart(@Valid @RequestBody RemoveItemCartDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleClient(request);
@@ -56,6 +60,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/find")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> findCart(@Valid @NotNull @ValidObjectId String idCart, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleClient(request);
@@ -65,6 +70,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/findAll")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> getCarts(HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleClient(request);
 		String userId = authUtils.getId(request);
@@ -73,6 +79,7 @@ public class CartControllerImpl implements CartController {
 
 	@Override
 	@PostMapping("/delete")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> deleteCart(@Valid @ValidObjectId @NotNull String idCart, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleClient(request);

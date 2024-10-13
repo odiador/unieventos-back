@@ -2,14 +2,9 @@ package co.edu.uniquindio.unieventos.dto.client;
 
 import org.hibernate.validator.constraints.Length;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public record EditUserDataDTO(
-		@NotBlank
-		@Email
-		String email,
-
 		@NotBlank
 		@Length(min = 0, max = 50)
 		String name,

@@ -88,10 +88,4 @@ public class ExceptionHandling {
 	public ResponseEntity<?> handlerException(MultiErrorException e) {
 		return ResponseEntity.status(e.getCode()).body(new MultiErrorDTO(e.getCode(), e.getMessage(), e.getErrors()));
 	}
-
-	@ExceptionHandler(Exception.class)
-	public ResponseEntity<?> handlerException(Exception e) {
-		return ResponseEntity.status(500).body(new ErrorDTO(500, e.getMessage()));
-	}
-
 }

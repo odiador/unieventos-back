@@ -99,6 +99,7 @@ public class CartServiceImpl implements CartService {
 			throw new ConflictException("La localidad no tiene suficientes entradas");
 		}
 		if (found != null) {
+			found.setQuantity(dto.quantity());
 			cart.setItem(index, found);
 		} else {
 			CartDetail detail = CartDetail.builder()

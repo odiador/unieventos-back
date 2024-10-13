@@ -16,6 +16,7 @@ import co.edu.uniquindio.unieventos.controllers.CouponController;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponCodeDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
 import co.edu.uniquindio.unieventos.services.CouponService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
@@ -31,6 +32,7 @@ public class CouponControllerImpl implements CouponController {
 
 	@Override
 	@PostMapping("/create")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> createCoupon(@RequestBody CouponDTO dto, HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleAdmin(request);
 		String code = service.saveCoupon(dto);
@@ -39,6 +41,7 @@ public class CouponControllerImpl implements CouponController {
 
 	@Override
 	@GetMapping("/findId")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> findById(@RequestParam("id") String id, HttpServletRequest request) throws Exception {
 		authUtils.verifyMinRoleClient(request);
 		return ResponseEntity.status(HttpStatus.OK).body(service.getCouponById(id));
@@ -46,6 +49,7 @@ public class CouponControllerImpl implements CouponController {
 
 	@Override
 	@GetMapping("/find")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> findByCode(@RequestParam("code") String code, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyMinRoleClient(request);

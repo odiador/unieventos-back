@@ -18,6 +18,7 @@ import co.edu.uniquindio.unieventos.dto.event.EditEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
 import co.edu.uniquindio.unieventos.services.EventService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -36,6 +37,7 @@ public class EventControllerImpl implements EventController {
 
 	@Override
 	@PostMapping("/create")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> createEvent(@Valid CreateEventDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleAdmin(request);
@@ -44,6 +46,7 @@ public class EventControllerImpl implements EventController {
 
 	@Override
 	@PutMapping("/edit")
+	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> editEvent(@RequestBody @Valid EditEventDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleAdmin(request);
@@ -64,7 +67,9 @@ public class EventControllerImpl implements EventController {
 	}
 	@Override
 	@DeleteMapping("/delete")
-	public ResponseEntity<?> deleteEvent(@RequestBody @Valid FindEventDTO dto) throws Exception {
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<?> deleteEvent(@RequestBody @Valid FindEventDTO dto, HttpServletRequest request) throws Exception {
+		authUtils.verifyRoleAdmin(request);
 		eventService.deleteEvent(dto);
 		return ResponseEntity.ok().build();
 	}

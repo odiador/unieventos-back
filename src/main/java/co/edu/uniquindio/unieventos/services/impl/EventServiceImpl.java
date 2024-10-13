@@ -29,6 +29,7 @@ import co.edu.uniquindio.unieventos.model.vo.Event;
 import co.edu.uniquindio.unieventos.model.vo.EventTag;
 import co.edu.uniquindio.unieventos.model.vo.Locality;
 import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
+import co.edu.uniquindio.unieventos.repositories.CalendarRepositoryCustom;
 import co.edu.uniquindio.unieventos.services.EventService;
 import co.edu.uniquindio.unieventos.services.ImagesService;
 import jakarta.validation.Valid;
@@ -40,6 +41,8 @@ public class EventServiceImpl implements EventService {
 
 	@Autowired
 	private CalendarRepository calendarRepository;
+	@Autowired
+	private CalendarRepositoryCustom calendarRepositoryCustom;
 
 	@Autowired
 	private ImagesService imagesService;
@@ -224,8 +227,14 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public List<EventDTO> findEvents(SearchEventDTO dto) {
-		List<Calendar> calendars = calendarRepository.findCalendarsWithFilteredEvents(dto.name(), dto.city(),
-				LocalDate.parse(dto.date()), dto.tagName(), dto.page(), dto.size());
+		LocalDate date = dto.date()!=null?LocalDate.parse(dto.date()):null;
+		List<Calendar> calendars = calendarRepositoryCustom.findCalendarsWithFilteredEvents(
+				dto.name(),
+				dto.city(),
+				date,
+				dto.tagName(),
+				dto.page(),
+				dto.size());
 		List<Event> events = new ArrayList<Event>();
 		for (Calendar calendar : calendars)
 			for (Event event : calendar.getEvents())

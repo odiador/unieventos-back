@@ -11,6 +11,6 @@ public class ObjectIdValidator implements ConstraintValidator<ValidObjectId, Str
 	public boolean isValid(String value, ConstraintValidatorContext context) {
 		if (value == null)
 			return true;
-		return true;
+		return ObjectId.isValid(value);
 	}
 }
