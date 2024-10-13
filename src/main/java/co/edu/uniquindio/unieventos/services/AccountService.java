@@ -14,6 +14,7 @@ import co.edu.uniquindio.unieventos.exceptions.InvalidCodeException;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
 import co.edu.uniquindio.unieventos.model.documents.Account;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 
 public interface AccountService {
 
@@ -34,5 +35,7 @@ public interface AccountService {
 	String changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
 
 	TokenDTO login(@Valid LoginDTO loginDTO) throws Exception;
+
+	void validateMail(@Valid @Email String email) throws Exception;
 
 }

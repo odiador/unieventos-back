@@ -13,6 +13,8 @@ public interface AccountRepository extends MongoRepository<Account, String> {
 
 	Optional<Account> findByEmail(String email);
 
+	Optional<Account> findByEmailAndStatus(String email, AccountStatus status);
+
 	boolean existsByEmailOrUser_Cedula(String email, String cedula);
 
 	boolean existsByEmail(String email);

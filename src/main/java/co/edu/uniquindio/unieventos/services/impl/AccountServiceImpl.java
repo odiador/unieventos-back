@@ -251,4 +251,14 @@ public class AccountServiceImpl implements AccountService {
 		return Map.of("role", acc.getRole(), "name", acc.getUser().getName(), "id", acc.getId());
 	}
 
+	@Override
+	public void validateMail(@Valid @Email String email) throws Exception {
+		DocumentNotFoundException e = new DocumentNotFoundException("Tu cuenta no existe");
+		Account account = repo.findByEmail(email).orElseThrow(() -> e);
+		if (account.getStatus() == AccountStatus.DELETED)
+			throw e;
+		if (account.getStatus() == AccountStatus.UNVERIFIED)
+			throw new ConflictException("Tu cuenta no está activa");
+	}
+
 }
