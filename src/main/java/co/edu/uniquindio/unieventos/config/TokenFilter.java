@@ -33,65 +33,53 @@ public class TokenFilter extends OncePerRequestFilter {
 		// Configuración de cabeceras para CORS
 		response.addHeader("Access-Control-Allow-Origin", "*");
 		response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-		response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, Authorization");
+		response.addHeader("Access-Control-Allow-Headers", "*");
+		response.addHeader("Access-Control-Expose-Headers", "Authorization");
+		response.addHeader("Access-Control-Allow-Credentials", "true");
 		if (request.getMethod().equals("OPTIONS")) {
 			response.setStatus(HttpServletResponse.SC_OK);
-		} else {
-
-			boolean error = true;
-			try {
-			// Obtener la URI de la petición que se está realizando
+			return;
+		}
+		boolean error = false;
+		try {
 			String requestURI = request.getRequestURI();
 
-			// Se obtiene el token de la petición del encabezado del mensaje HTTP
-			try {
-				String token = jwtUtils.getToken(request);
-				if (token != null) {
-					Jws<Claims> jws = jwtUtils.parseJwt(token);
-					Claims payload = jws.getPayload();
-					request.setAttribute("email", payload.getSubject());
-					request.setAttribute("id", payload.get("id"));
-					request.setAttribute("name", payload.get("name"));
-					request.setAttribute("role", payload.get("role"));
-				}
-			} catch (Exception e) {
+			addAtributes(request);
+
+			if (requestURI.startsWith("/api/clients") && authUtils.validateRoleMinClient(request)) {
+				error = crearRespuestaError("No tiene permisos para acceder a este recurso",
+						HttpServletResponse.SC_FORBIDDEN, response);
 			}
+		} catch (MalformedJwtException | SignatureException e) {
+			error = crearRespuestaError("El token es incorrecto", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
+		} catch (ExpiredJwtException e) {
+			error = crearRespuestaError("El token está vencido", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
+		} catch (Exception e) {
+			error = crearRespuestaError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
+		}
 
-			
-
-				// Si la petición es para la ruta /api/cliente se verifica que el token exista y
-				// que el rol sea CLIENTE
-				if (requestURI.startsWith("/api/clients")) {
-					error = authUtils.validateRoleMinClient(request);
-				} else {
-					error = false;
-				}
-
-				// Agregar la validación para las peticiones que sean de los administradores
-
-				// Si hay un error se crea una respuesta con el mensaje del error
-				if (error) {
-					crearRespuestaError("No tiene permisos para acceder a este recurso",
-							HttpServletResponse.SC_FORBIDDEN, response);
-				}
-
-			} catch (MalformedJwtException | SignatureException e) {
-				crearRespuestaError("El token es incorrecto", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
-			} catch (ExpiredJwtException e) {
-				crearRespuestaError("El token está vencido", HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
-			} catch (Exception e) {
-				crearRespuestaError(e.getMessage(), HttpServletResponse.SC_INTERNAL_SERVER_ERROR, response);
-			}
-
-			// Si no hay errores se continúa con la petición
-			if (!error) {
-				filterChain.doFilter(request, response);
-			}
+		if (!error) {
+			filterChain.doFilter(request, response);
 		}
 
 	}
 
-	private void crearRespuestaError(String message, int code, HttpServletResponse response) throws IOException {
+	private void addAtributes(HttpServletRequest request) {
+		try {
+			String token = jwtUtils.getToken(request);
+			if (token != null) {
+				Jws<Claims> jws = jwtUtils.parseJwt(token);
+				Claims payload = jws.getPayload();
+				request.setAttribute("email", payload.getSubject());
+				request.setAttribute("id", payload.get("id"));
+				request.setAttribute("name", payload.get("name"));
+				request.setAttribute("role", payload.get("role"));
+			}
+		} catch (Exception e) {
+		}
+	}
+
+	private boolean crearRespuestaError(String message, int code, HttpServletResponse response) throws IOException {
 		ErrorDTO dto = new ErrorDTO(code, message);
 
 		response.setContentType("application/json");
@@ -99,6 +87,7 @@ public class TokenFilter extends OncePerRequestFilter {
 		response.getWriter().write(new ObjectMapper().writeValueAsString(dto));
 		response.getWriter().flush();
 		response.getWriter().close();
+		return true;
 	}
 
 }
