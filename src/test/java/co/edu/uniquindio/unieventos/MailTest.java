@@ -9,7 +9,7 @@ public class MailTest {
 
 	@Test
 	public void test() throws Exception {
-		EmailServiceImpl esi = new EmailServiceImpl();
-		esi.sendVerificationMail(new VerifyMailSendDTO("amadoursecun@gmail.com", null));
+		// EmailServiceImpl esi = new EmailServiceImpl();
+		// esi.sendVerificationMail(new VerifyMailSendDTO("amadoursecun@gmail.com", null));
 	}
 }

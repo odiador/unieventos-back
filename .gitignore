@@ -39,3 +39,4 @@ out/
 src/main/resources/firebase-secret.json
 src/main/resources/.env
 src/main/resources/ngrok.yml
+/.apt_generated_tests/

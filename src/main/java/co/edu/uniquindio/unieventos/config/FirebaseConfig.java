@@ -2,6 +2,7 @@ package co.edu.uniquindio.unieventos.config;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,10 +16,11 @@ public class FirebaseConfig {
 
 	@Bean
 	public FirebaseApp intializeFirebase() throws IOException {
-		try (FileInputStream serviceAccount = new FileInputStream("src/main/resources/firebase-secret.json")) {
+		
+		try (InputStream is = getClass().getResourceAsStream("/firebase-secret.json");) {
 
 			FirebaseOptions options = FirebaseOptions.builder()
-					.setCredentials(GoogleCredentials.fromStream(serviceAccount))
+					.setCredentials(GoogleCredentials.fromStream(is))
 					.setStorageBucket("amaevents-0.appspot.com")
 					.build();
 
