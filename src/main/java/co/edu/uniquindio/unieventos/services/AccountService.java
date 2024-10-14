@@ -4,7 +4,6 @@ import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
-import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -35,7 +34,7 @@ public interface AccountService {
 
 	ResponseDTO<?> changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
 
-	TokenDTO login(@Valid LoginDTO loginDTO) throws Exception;
+	ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception;
 
 	ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception;
 

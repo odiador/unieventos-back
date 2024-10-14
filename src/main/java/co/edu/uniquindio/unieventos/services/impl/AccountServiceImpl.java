@@ -181,10 +181,10 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public TokenDTO login(@Valid LoginDTO loginDTO) throws Exception {
+	public ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception {
 		Account accFound = verifyLogin(loginDTO);
 		Map<String, Object> map = buildClaims(accFound);
-		return new TokenDTO(jwtUtils.generateToken(accFound.getEmail(), map));
+		return new ResponseDTO<TokenDTO>("Se pudo iniciar sesión", new TokenDTO(jwtUtils.generateToken(accFound.getEmail(), map)));
 
 	}
 
