@@ -16,6 +16,6 @@ public interface AccountController {
 
 	ResponseEntity<?> getAccountInfo(HttpServletRequest request) throws Exception;
 
-	ResponseEntity<String> deleteAccount(@Valid LoginDTO dto, HttpServletRequest request) throws Exception;
+	ResponseEntity<?> deleteAccount(@Valid LoginDTO dto, HttpServletRequest request) throws Exception;
 
 }

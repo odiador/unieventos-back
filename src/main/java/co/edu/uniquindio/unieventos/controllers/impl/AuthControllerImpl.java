@@ -21,6 +21,7 @@ import co.edu.uniquindio.unieventos.model.documents.Account;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -41,29 +42,25 @@ public class AuthControllerImpl implements AuthController {
 	@Override
 	@PostMapping("/password/recovery")
 	public ResponseEntity<?> sendRecuperationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
-		String result = accountService.sendRecuperationCode(email);
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(accountService.sendRecuperationCode(email));
 	}
 
 	@Override
 	@PostMapping("/activation/send")
 	public ResponseEntity<?> resendActivationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
-		String result = accountService.resendActivationCode(email);
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(accountService.resendActivationCode(email));
 	}
 
 	@Override
 	@PostMapping("/activation/activate")
 	public ResponseEntity<?> activateAccount(@Valid @RequestBody ActivateAccountDTO dto) throws Exception {
-		String result = accountService.activateAccount(dto);
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(accountService.activateAccount(dto));
 	}
 
 	@Override
 	@PostMapping("/password/change")
-	public ResponseEntity<String> changePassword(@Valid @RequestBody ChangePasswordDTO change) throws Exception {
-		String result = accountService.changePassword(change);
-		return ResponseEntity.ok(result);
+	public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO change) throws Exception {
+		return ResponseEntity.ok(accountService.changePassword(change));
 	}
 	
 	@Override
@@ -74,8 +71,8 @@ public class AuthControllerImpl implements AuthController {
 
 	@Override
 	@GetMapping("/validateMail")
-	public ResponseEntity<?> validateMail(@Valid @RequestParam("mail") String email) throws Exception {
-		accountService.validateMail(email);
-		return ResponseEntity.ok("R");
+	public ResponseEntity<?> validateMail(@Valid @Email @NotBlank @RequestParam("mail") String email) throws Exception {
+		return ResponseEntity.ok(accountService.validateMail(email));
 	}
+
 }

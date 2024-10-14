@@ -31,11 +31,14 @@ public class TokenFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 
 		// Configuración de cabeceras para CORS
-		response.addHeader("Access-Control-Allow-Origin", "*");
-		response.addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-		response.addHeader("Access-Control-Allow-Headers", "*");
-		response.addHeader("Access-Control-Expose-Headers", "Authorization");
-		response.addHeader("Access-Control-Allow-Credentials", "true");
+		
+		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+		response.setHeader("Access-Control-Allow-Credentials", "true");
+		String origin = request.getHeader("Origin");
+		if ("https://amaevents.vercel.app".equals(origin) || "http://localhost".equals(origin)) {
+			response.setHeader("Access-Control-Allow-Origin", origin);
+		}
+		response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, Authorization");
 		if (request.getMethod().equals("OPTIONS")) {
 			response.setStatus(HttpServletResponse.SC_OK);
 			return;

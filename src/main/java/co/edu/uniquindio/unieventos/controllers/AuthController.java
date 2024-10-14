@@ -24,7 +24,7 @@ public interface AuthController {
 
 	ResponseEntity<?> resendActivationCode(@Valid @Email @RequestParam("email") String email) throws Exception;
 
-	ResponseEntity<?> validateMail(@Valid @Email @NotBlank @RequestParam("email") String email) throws Exception;
+	ResponseEntity<?> validateMail(@Valid @Email @NotBlank @RequestParam("mail") String email) throws Exception;
 
 	ResponseEntity<?> activateAccount(@Valid ActivateAccountDTO dto) throws Exception;
 }

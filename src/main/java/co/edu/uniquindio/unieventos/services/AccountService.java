@@ -7,6 +7,7 @@ import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
@@ -20,22 +21,22 @@ public interface AccountService {
 
 	Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException;
 
-	String editAccount(String mail, @Valid EditUserDataDTO account) throws Exception;
+	ResponseDTO<?> editAccount(String mail, @Valid EditUserDataDTO account) throws Exception;
 
-	String deleteAccount(@Valid LoginDTO dto) throws Exception;
+	ResponseDTO<?> deleteAccount(@Valid LoginDTO dto) throws Exception;
 
 	UserDataDTO getAccountInfo(String id) throws DocumentNotFoundException;
 
-	String sendRecuperationCode(String email) throws Exception;
+	ResponseDTO<?> sendRecuperationCode(String email) throws Exception;
 
-	String resendActivationCode(String email) throws Exception;
+	ResponseDTO<?> resendActivationCode(String email) throws Exception;
 
-	String activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException, ConflictException;
+	ResponseDTO<?> activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException, ConflictException;
 
-	String changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
+	ResponseDTO<?> changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
 
 	TokenDTO login(@Valid LoginDTO loginDTO) throws Exception;
 
-	void validateMail(@Valid @Email String email) throws Exception;
+	ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception;
 
 }

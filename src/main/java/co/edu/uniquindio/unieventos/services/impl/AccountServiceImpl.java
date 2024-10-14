@@ -19,6 +19,7 @@ import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
 import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
@@ -85,12 +86,11 @@ public class AccountServiceImpl implements AccountService {
 				.build();
 
 		emailService.sendVerificationMail(new VerifyMailSendDTO(account.email(), registerValidation.getCode()));
-		repo.save(createdAccount);
-		return createdAccount;
+		return repo.save(createdAccount);
 	}
 
 	@Override
-	public String editAccount(String email, @Valid EditUserDataDTO dto) throws Exception {
+	public ResponseDTO<?> editAccount(String email, @Valid EditUserDataDTO dto) throws Exception {
 		Optional<Account> accountOpt = repo.findByEmail(email);
 		if (accountOpt.isEmpty())
 			throw new DocumentNotFoundException("La cuenta no existe");
@@ -105,15 +105,16 @@ public class AccountServiceImpl implements AccountService {
 				.build();
 		account.setUser(ud);
 		repo.save(account);
-		return null;
+		return new ResponseDTO<UserDataDTO>("Tu cuenta ha sido editada exitosamente",
+				new UserDataDTO(dto.name(), dto.cedula(), dto.adress(), dto.city(), dto.phone()));
 	}
 
 	@Override
-	public String deleteAccount(LoginDTO dto) throws Exception {
+	public ResponseDTO<?> deleteAccount(LoginDTO dto) throws Exception {
 		Account account = verifyLogin(dto);
 		account.setStatus(AccountStatus.DELETED);
 		repo.save(account);
-		return null;
+		return new ResponseDTO<String>("Tu cuenta ha sido eliminada exitosamente", null);
 	}
 
 	@Override
@@ -124,7 +125,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String sendRecuperationCode(@Valid @Email String email) throws Exception {
+	public ResponseDTO<?> sendRecuperationCode(@Valid @Email String email) throws Exception {
 		Account account = repo.findByEmail(email)
 				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no existe"));
 		if (account.getStatus() == AccountStatus.UNVERIFIED)
@@ -146,7 +147,7 @@ public class AccountServiceImpl implements AccountService {
 		account.setPasswordRecuperationCode(newValCode);
 		emailService.sendPasswordRecoveryMail(new RecoveryPasswordMailSendDTO(email, newValCode.getCode()));
 		repo.save(account);
-		return null;
+		return new ResponseDTO<String>("Se ha enviado el correo de recuperación de contraseña exitosamente", null);
 	}
 
 
@@ -158,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String changePassword(@Valid ChangePasswordDTO dto)
+	public ResponseDTO<?> changePassword(@Valid ChangePasswordDTO dto)
 			throws DocumentNotFoundException, InvalidCodeException {
 		Account account = repo.findByEmail(dto.email())
 				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"));
@@ -170,7 +171,7 @@ public class AccountServiceImpl implements AccountService {
 
 		account.setPassword(encryptPassword(dto.newPassword()));
 		repo.save(account);
-		return null;
+		return new ResponseDTO<String>("Tu contraseña ha sido cambiada exitosamente", null);
 	}
 
 	private boolean codeExpired(LocalDateTime timestamp) {
@@ -205,7 +206,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public String resendActivationCode(String email) throws Exception {
+	public ResponseDTO<?> resendActivationCode(String email) throws Exception {
 		Account account = repo.findByEmail(email)
 				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no existe"));
 		if (account.getStatus() != AccountStatus.UNVERIFIED)
@@ -223,11 +224,11 @@ public class AccountServiceImpl implements AccountService {
 		account.setRegisterValidationCode(newValCode);
 		emailService.sendVerificationMail(new VerifyMailSendDTO(email, newValCode.getCode()));
 		repo.save(account);
-		return null;
+		return new ResponseDTO<String>("Se mandó un código de activación a tu cuenta exitosamente", null);
 	}
 
 	@Override
-	public String activateAccount(@Valid ActivateAccountDTO dto)
+	public ResponseDTO<?> activateAccount(@Valid ActivateAccountDTO dto)
 			throws DocumentNotFoundException, InvalidCodeException, ConflictException {
 		Account account = repo.findByEmail(dto.email())
 				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"));
@@ -240,7 +241,7 @@ public class AccountServiceImpl implements AccountService {
 			throw new InvalidCodeException("Tu código es inválido");
 		account.setStatus(AccountStatus.ACTIVE);
 		repo.save(account);
-		return null;
+		return new ResponseDTO<String>("Tu cuenta ha sido activada exitosamente", null);
 	}
 
 	private String encryptPassword(String password) {
@@ -252,13 +253,14 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public void validateMail(@Valid @Email String email) throws Exception {
+	public ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception {
 		DocumentNotFoundException e = new DocumentNotFoundException("Tu cuenta no existe");
 		Account account = repo.findByEmail(email).orElseThrow(() -> e);
 		if (account.getStatus() == AccountStatus.DELETED)
 			throw e;
 		if (account.getStatus() == AccountStatus.UNVERIFIED)
 			throw new ConflictException("Tu cuenta no está activa");
+		return new ResponseDTO<String>("Tu cuenta si está activa", null);
 	}
 
 }

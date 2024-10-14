@@ -1,6 +1,5 @@
 package co.edu.uniquindio.unieventos.config;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 

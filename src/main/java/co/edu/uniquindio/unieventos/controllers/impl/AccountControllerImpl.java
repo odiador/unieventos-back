@@ -30,35 +30,33 @@ public class AccountControllerImpl implements AccountController {
 
 	@Autowired
 	private AccountService accountService;
-	
+
 	private final AuthUtils authUtils;
 
 	@Override
 	@PutMapping("/edit")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<String> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
+	public ResponseEntity<?> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
 			throws Exception {
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new DocumentNotFoundException("Tu cuenta no fue encontrada");
-		String result = accountService.editAccount(mail, account);
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(accountService.editAccount(mail, account));
 	}
-
 
 	@Override
 	@DeleteMapping("/delete")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<String> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request) throws Exception {
+	public ResponseEntity<?> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request)
+			throws Exception {
 		authUtils.verifyMail(dto.email(), request);
-		String result = accountService.deleteAccount(dto);
-		return ResponseEntity.ok(result);
+		return ResponseEntity.ok(accountService.deleteAccount(dto));
 	}
 
 	@Override
 	@GetMapping("/info")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<UserDataDTO> getAccountInfo( HttpServletRequest request) throws Exception {
+	public ResponseEntity<UserDataDTO> getAccountInfo(HttpServletRequest request) throws Exception {
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new DocumentNotFoundException("Tu cuenta no fue encontrada");
