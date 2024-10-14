@@ -43,7 +43,7 @@ public class ExceptionHandling {
 
 	@ExceptionHandler(InvalidUsernameException.class)
 	public ResponseEntity<?> handlerException(InvalidUsernameException e) {
-		return ResponseEntity.badRequest().body(new ErrorDTO(400, e.getMessage()));
+		return ResponseEntity.status(404).body(new ErrorDTO(404, e.getMessage()));
 	}
 
 	@ExceptionHandler(DocumentNotFoundException.class)
