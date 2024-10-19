@@ -17,6 +17,7 @@ import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.model.documents.Account;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import jakarta.validation.Valid;
@@ -35,8 +36,9 @@ public class AuthControllerImpl implements AuthController {
 	@Override
 	@PostMapping("/create")
 	public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountDTO account) throws Exception {
-		Account createdAccount = accountService.createAccount(account);
-		return ResponseEntity.status(HttpStatus.CREATED).body(createdAccount);
+		return ResponseEntity.status(HttpStatus.CREATED).body(
+				new ResponseDTO<Account>("Tu cuenta ha sido creada con éxito", 
+						accountService.createAccount(account)));
 	}
 
 	@Override

@@ -33,10 +33,8 @@ import co.edu.uniquindio.unieventos.repositories.CalendarRepositoryCustom;
 import co.edu.uniquindio.unieventos.services.EventService;
 import co.edu.uniquindio.unieventos.services.ImagesService;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
 
 @Service
-@AllArgsConstructor
 public class EventServiceImpl implements EventService {
 
 	@Autowired
@@ -46,8 +44,8 @@ public class EventServiceImpl implements EventService {
 
 	@Autowired
 	private ImagesService imagesService;
-	
-	private final Mappers mappers;
+	@Autowired
+	private Mappers mappers;
 
 	@Override
 	public EventDTO findEvent(@Valid FindEventDTO dto) throws DocumentNotFoundException {

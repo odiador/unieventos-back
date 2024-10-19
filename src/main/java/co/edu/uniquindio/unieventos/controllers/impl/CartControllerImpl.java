@@ -18,15 +18,14 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
 @CrossOrigin
 @RequestMapping("/api/carts")
 public class CartControllerImpl implements CartController {
 	
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 	@Autowired
 	private CartService cartService;
 

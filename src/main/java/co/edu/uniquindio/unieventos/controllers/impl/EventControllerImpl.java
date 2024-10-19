@@ -33,7 +33,8 @@ public class EventControllerImpl implements EventController {
 	@Autowired
 	private EventService eventService;
 
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 
 	@Override
 	@PostMapping("/create")

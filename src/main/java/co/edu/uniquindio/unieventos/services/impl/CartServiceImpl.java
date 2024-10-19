@@ -23,9 +23,7 @@ import co.edu.uniquindio.unieventos.model.vo.Locality;
 import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
 import co.edu.uniquindio.unieventos.repositories.CartRepository;
 import co.edu.uniquindio.unieventos.services.CartService;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Service
 public class CartServiceImpl implements CartService {
 
@@ -33,9 +31,8 @@ public class CartServiceImpl implements CartService {
 	private CartRepository cartRepository;
 	@Autowired
 	private CalendarRepository calendarRepository;
-	
 	@Autowired
-	private final Mappers mappers;
+	private Mappers mappers;
 
 	@Override
 	public CartDTO createCart(String userId) throws Exception {

@@ -2,6 +2,7 @@ package co.edu.uniquindio.unieventos.config;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,24 +18,25 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class TokenFilter extends OncePerRequestFilter {
 
-	private final JWTUtils jwtUtils;
-	private final AuthUtils authUtils;
+	@Autowired
+	private JWTUtils jwtUtils;
+	@Autowired
+	private AuthUtils authUtils;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
 		// Configuración de cabeceras para CORS
+		System.out.println("hola");
+		String origin = request.getHeader("Origin");
 		
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Allow-Credentials", "true");
-		String origin = request.getHeader("Origin");
 		if ("https://amaevents.vercel.app".equals(origin) || "http://localhost".equals(origin)) {
 			response.setHeader("Access-Control-Allow-Origin", origin);
 		}

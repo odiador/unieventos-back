@@ -20,17 +20,16 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/calendars")
 @CrossOrigin
-@RequiredArgsConstructor
 public class CalendarControllerImpl implements CalendarController {
 	
 	@Autowired
 	private CalendarService calendarService;
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 	
 
 	@Override

@@ -25,18 +25,16 @@ import co.edu.uniquindio.unieventos.services.CalendarService;
 import co.edu.uniquindio.unieventos.services.ImagesService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class CalendarServiceImpl implements CalendarService {
 
 	@Autowired
 	private CalendarRepository calendarRepository;
 	@Autowired
 	private ImagesService imagesService;
-	
-	private final Mappers mappers;
+	@Autowired
+	private Mappers mappers;
 
 	@Override
 	public CalendarDTO createCalendar(@Valid CreateCalendarDTO dto) throws Exception {

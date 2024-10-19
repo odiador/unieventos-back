@@ -34,7 +34,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class OrderControllerImpl implements OrderController {
 
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 	@Autowired
 	private OrderService orderService;
 

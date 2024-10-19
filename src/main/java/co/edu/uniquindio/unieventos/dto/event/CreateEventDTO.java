@@ -13,11 +13,13 @@ import co.edu.uniquindio.unieventos.model.enums.EventType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class CreateEventDTO {
 	
 
@@ -29,7 +31,7 @@ public class CreateEventDTO {
 	@Length(min = 0, max = 100)
 	private String name;
 
-	private MultipartFile eventImage ;
+	private MultipartFile eventImage;
 
 	private MultipartFile localityImage;
 

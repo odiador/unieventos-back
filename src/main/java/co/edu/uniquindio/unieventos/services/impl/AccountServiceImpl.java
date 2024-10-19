@@ -39,10 +39,8 @@ import co.edu.uniquindio.unieventos.services.EmailService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired
@@ -54,7 +52,8 @@ public class AccountServiceImpl implements AccountService {
 	@Autowired
 	private RandomCodesService randomCodesService;
 
-	private final JWTUtils jwtUtils;
+	@Autowired
+	private JWTUtils jwtUtils;
 
 	@Override
 	public Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException {

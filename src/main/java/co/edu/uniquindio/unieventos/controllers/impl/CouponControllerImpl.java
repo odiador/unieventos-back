@@ -18,17 +18,16 @@ import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
 import co.edu.uniquindio.unieventos.services.CouponService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/coupons")
 @CrossOrigin
-@RequiredArgsConstructor
 public class CouponControllerImpl implements CouponController {
 
 	@Autowired
 	private CouponService service;
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 
 	@Override
 	@PostMapping("/create")

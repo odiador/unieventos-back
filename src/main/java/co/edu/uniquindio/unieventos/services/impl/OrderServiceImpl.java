@@ -50,9 +50,7 @@ import co.edu.uniquindio.unieventos.repositories.CartRepository;
 import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.repositories.OrderRepository;
 import co.edu.uniquindio.unieventos.services.OrderService;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @Service
 public class OrderServiceImpl implements OrderService {
 
@@ -187,13 +185,13 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public OrderDTO createOrder(CreateOrderDTO dto) throws DocumentNotFoundException, CartEmptyException, MultiErrorException {
+	public OrderDTO createOrder(CreateOrderDTO dto) throws Exception {
 		Cart cart = cartRepository.findById(dto.cartId())
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito con ese ID no fue encontrado"));
 		Account account = accountRepository.findById(cart.getUserId())
 				.orElseThrow(() -> new DocumentNotFoundException("El usuario en el carrito no fue encontrado"));
 		if(!account.getEmail().equals(dto.email()))
-			new UnauthorizedAccessException("Tu cuenta no coincide con la cuenta del carrito");
+			throw new UnauthorizedAccessException("Tu cuenta no coincide con la cuenta del carrito");
 
 		if(cart.isEmpty())
 			throw new CartEmptyException("El carrito no puede estar vacío");

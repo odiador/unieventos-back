@@ -20,18 +20,16 @@ import co.edu.uniquindio.unieventos.services.AccountService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/clients")
 @CrossOrigin
-@RequiredArgsConstructor
 public class AccountControllerImpl implements AccountController {
 
 	@Autowired
 	private AccountService accountService;
-
-	private final AuthUtils authUtils;
+	@Autowired
+	private AuthUtils authUtils;
 
 	@Override
 	@PutMapping("/edit")

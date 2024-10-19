@@ -60,9 +60,10 @@ public class ExceptionHandling {
 	public ResponseEntity<?> handlerException(UnauthorizedAccessException e) {
 		return ResponseEntity.status(403).body(new ErrorDTO(403, e.getMessage()));
 	}
+
 	@ExceptionHandler(InvalidCodeException.class)
 	public ResponseEntity<?> handlerException(InvalidCodeException e) {
-		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
+		return ResponseEntity.status(401).body(new ErrorDTO(401, e.getMessage()));
 	}
 
 	@ExceptionHandler(DeletedAccountException.class)
