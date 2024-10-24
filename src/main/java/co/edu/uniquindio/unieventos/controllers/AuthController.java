@@ -8,6 +8,7 @@ import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -27,4 +28,6 @@ public interface AuthController {
 	ResponseEntity<?> validateMail(@Valid @Email @NotBlank @RequestParam("mail") String email) throws Exception;
 
 	ResponseEntity<?> activateAccount(@Valid ActivateAccountDTO dto) throws Exception;
+
+	ResponseEntity<?> checkUser(HttpServletRequest request) throws Exception;
 }

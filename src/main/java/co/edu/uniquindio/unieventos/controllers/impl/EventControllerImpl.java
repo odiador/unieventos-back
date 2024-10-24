@@ -17,6 +17,7 @@ import co.edu.uniquindio.unieventos.dto.event.CreateEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EditEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.services.EventService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,9 +56,13 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@Override
-	@GetMapping("/find")
+	@PostMapping("/find")
 	public ResponseEntity<?> findEvent(@RequestBody @NotNull FindEventDTO dto) throws Exception {
-		return ResponseEntity.ok(eventService.findEvent(dto));
+		return ResponseEntity.ok(
+				new ResponseDTO<>(
+						"El evento ha sido encontrado con éxito", 
+						eventService.findEvent(dto)
+				));
 	}
 
 

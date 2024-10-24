@@ -10,12 +10,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import co.edu.uniquindio.unieventos.config.JWTUtils;
+import co.edu.uniquindio.unieventos.config.Mappers;
 import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
+import co.edu.uniquindio.unieventos.dto.auth.CheckUserDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.auth.LoginResponseDTO;
 import co.edu.uniquindio.unieventos.dto.auth.RecoveryPasswordMailSendDTO;
-import co.edu.uniquindio.unieventos.dto.auth.TokenDTO;
 import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
@@ -28,6 +30,7 @@ import co.edu.uniquindio.unieventos.exceptions.InvalidCodeException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidLoginException;
 import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
+import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.model.documents.Account;
 import co.edu.uniquindio.unieventos.model.enums.AccountStatus;
 import co.edu.uniquindio.unieventos.model.enums.Role;
@@ -39,6 +42,7 @@ import co.edu.uniquindio.unieventos.services.EmailService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -54,6 +58,8 @@ public class AccountServiceImpl implements AccountService {
 
 	@Autowired
 	private JWTUtils jwtUtils;
+	@Autowired
+	private Mappers mappers;
 
 	@Override
 	public Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException {
@@ -183,7 +189,11 @@ public class AccountServiceImpl implements AccountService {
 	public ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception {
 		Account accFound = verifyLogin(loginDTO);
 		Map<String, Object> map = buildClaims(accFound);
-		return new ResponseDTO<TokenDTO>("Se pudo iniciar sesión", new TokenDTO(jwtUtils.generateToken(accFound.getEmail(), map)));
+		return new ResponseDTO<LoginResponseDTO>("Se pudo iniciar sesión",
+				new LoginResponseDTO(
+						mappers.getUserDataToDto().apply(accFound.getUser()),
+						jwtUtils.generateToken(accFound.getEmail(), map))
+				);
 
 	}
 
@@ -260,6 +270,18 @@ public class AccountServiceImpl implements AccountService {
 		if (account.getStatus() == AccountStatus.UNVERIFIED)
 			throw new ConflictException("Tu cuenta no está activa");
 		return new ResponseDTO<String>("Tu cuenta si está activa", null);
+	}
+
+	@Override
+	public ResponseDTO<?> checkUser(@Email @NotNull String mail) throws Exception {
+		Account account = repo.findByEmail(mail)
+				.orElseThrow(() -> new UnauthorizedAccessException("No tienes permiso para acceder a este recurso"));
+		return new ResponseDTO<>("Tu cuenta existe",
+				new CheckUserDTO(
+						account.getEmail(),
+						account.getUser().getName(),
+						account.getRole().toString())
+				);
 	}
 
 }

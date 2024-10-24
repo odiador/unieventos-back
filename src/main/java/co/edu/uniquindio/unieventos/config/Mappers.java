@@ -11,6 +11,7 @@ import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
 import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.CartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.CartDetailDTO;
+import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
 import co.edu.uniquindio.unieventos.dto.event.ReturnLocalityDTO;
@@ -23,6 +24,7 @@ import co.edu.uniquindio.unieventos.model.documents.Order;
 import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.model.vo.Event;
 import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
+import co.edu.uniquindio.unieventos.model.vo.UserData;
 import lombok.Getter;
 
 @Component
@@ -138,6 +140,16 @@ public class Mappers {
 				items,
 				e.getTotal(),
 				e.getCouponId());
+	};
+	
+	private final Function<UserData, UserDataDTO> userDataToDto = e -> {
+		return new UserDataDTO(
+				e.getName(),
+				e.getCedula(),
+				e.getAdress(),
+				e.getCity(),
+				e.getPhone()
+				);
 	};
 
 	private final Function<OrderDetail, OrderDetailDTO> orderDetailToDto = e -> {

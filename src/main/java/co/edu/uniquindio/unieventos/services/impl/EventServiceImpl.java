@@ -51,6 +51,7 @@ public class EventServiceImpl implements EventService {
 	public EventDTO findEvent(@Valid FindEventDTO dto) throws DocumentNotFoundException {
 		Calendar calendar = searchCalendar(dto.idCalendar());
 		List<Event> events = calendar.getEvents();
+		System.out.println(events);
 		return mappers.getEventMapper().apply(findEventOrThrow(dto.name(), events));
 	}
 

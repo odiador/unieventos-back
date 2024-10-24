@@ -15,6 +15,7 @@ import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
 import co.edu.uniquindio.unieventos.model.documents.Account;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
 
 public interface AccountService {
 
@@ -37,5 +38,7 @@ public interface AccountService {
 	ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception;
 
 	ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception;
+
+	ResponseDTO<?> checkUser(@Email @NotNull String mail) throws Exception;
 
 }
