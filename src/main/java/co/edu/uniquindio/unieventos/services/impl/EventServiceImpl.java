@@ -2,6 +2,7 @@ package co.edu.uniquindio.unieventos.services.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import co.edu.uniquindio.unieventos.dto.event.EditEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EditLocalityDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -226,8 +228,8 @@ public class EventServiceImpl implements EventService {
 
 
 	@Override
-	public ResponseDTO<?> findEvents(SearchEventDTO dto) {
-		LocalDate date = dto.date()!=null?LocalDate.parse(dto.date()):null;
+	public ResponseDTO<List<EventWCalIdDTO>> findEvents(SearchEventDTO dto) {
+		LocalDate date = dto.date() != null ? LocalDate.parse(dto.date()) : null;
 		List<Calendar> calendars = calendarRepositoryCustom.findCalendarsWithFilteredEvents(
 				dto.id(),
 				dto.name(),
@@ -236,14 +238,17 @@ public class EventServiceImpl implements EventService {
 				dto.tagName(),
 				dto.page(),
 				dto.size());
-		List<Event> events = new ArrayList<Event>();
-		for (Calendar calendar : calendars)
+		List<SimpleEntry<String, Event>> events = new ArrayList<>();
+		for (Calendar calendar : calendars) {
+			String id = calendar.getId();
 			for (Event event : calendar.getEvents())
-				events.add(event);
-		return new ResponseDTO<>("Se encontraron eventos:",
+				events.add(new SimpleEntry<>(id, event));
+		}
+		return new ResponseDTO<List<EventWCalIdDTO>>("Se encontraron eventos:", 
 				events.stream()
-				.map(mappers.getEventMapper())
-				.collect(Collectors.toList()));
+					.sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
+					.map(mappers.getEventCalIdToDTOMapper())
+					.collect(Collectors.toList()));
 	}
 
 	@Override

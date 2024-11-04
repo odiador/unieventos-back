@@ -1,8 +1,11 @@
 package co.edu.uniquindio.unieventos.services;
 
+import java.util.List;
+
 import co.edu.uniquindio.unieventos.dto.event.CreateEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EditEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -14,7 +17,7 @@ public interface EventService {
 
 	EventDTO editEvent(@Valid EditEventDTO dto) throws Exception;
 
-	ResponseDTO<?> findEvents(@Valid SearchEventDTO dto) throws Exception;
+	ResponseDTO<List<EventWCalIdDTO>> findEvents(@Valid SearchEventDTO dto) throws Exception;
 
 	void deleteEvent(@Valid FindEventDTO dto) throws Exception;
 

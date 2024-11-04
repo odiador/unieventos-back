@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unieventos.config;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -14,6 +15,7 @@ import co.edu.uniquindio.unieventos.dto.carts.CartDetailDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.ReturnLocalityDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDetailDTO;
@@ -72,6 +74,34 @@ public class Mappers {
 							.collect(Collectors.toList()),
 					event.getStatus(),
 					event.getType());
+	};
+	private final Function<SimpleEntry<String, Event>, EventWCalIdDTO> eventCalIdToDTOMapper = (entry) -> {
+		Event event = entry.getValue();
+		return new EventWCalIdDTO(
+				entry.getKey(),
+				event.getName(),
+				event.getEventImage(),
+				event.getLocalityImage(),
+				event.getCity(),
+				event.getDescription(),
+				event.getAddress(),
+				event.getStartTime().toString(),
+				event.getEndTime().toString(),
+				event.getLocalities() == null ? null
+						: event.getLocalities()
+						.stream()
+						.map(locality -> new ReturnLocalityDTO(
+								locality.getName(),
+								locality.getPrice(),
+								locality.getTicketsSold(),
+								locality.getMaxCapability()))
+						.collect(Collectors.toList()),
+						event.getTags() == null ? null
+								: event.getTags().stream()
+								.map(tagToDtoMapper)
+								.collect(Collectors.toList()),
+								event.getStatus(),
+								event.getType());
 	};
 
 	/**
