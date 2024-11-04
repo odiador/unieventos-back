@@ -23,6 +23,7 @@ import co.edu.uniquindio.unieventos.model.documents.Cart;
 import co.edu.uniquindio.unieventos.model.documents.Order;
 import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.model.vo.Event;
+import co.edu.uniquindio.unieventos.model.vo.EventTag;
 import co.edu.uniquindio.unieventos.model.vo.OrderDetail;
 import co.edu.uniquindio.unieventos.model.vo.UserData;
 import lombok.Getter;
@@ -31,36 +32,47 @@ import lombok.Getter;
 @Getter
 public class Mappers {
 
+	private final Function<EventTag, EventTagDTO> tagToDtoMapper = 
+			tag -> new EventTagDTO(
+					tag.getName(), 
+					tag.getColor(),
+					tag.getTextColor());
+			
+			private final Function<EventTagDTO, EventTag> dtoToTagMapper = 
+					tag -> new EventTag(
+							tag.getName(), 
+							tag.getColor(),
+							tag.getTextColor());
+
 	/**
 	 * Maps {@link Event} to {@link EventDTO}
 	 */
-	private final Function<Event, EventDTO> eventMapper = event -> new EventDTO(
-				event.getName(),
-				event.getEventImage(),
-				event.getLocalityImage(),
-				event.getCity(),
-				event.getDescription(),
-				event.getAddress(),
-				event.getStartTime().toString(),
-				event.getEndTime().toString(),
-				event.getLocalities() == null ? null
-					: event.getLocalities()
-						.stream()
-						.map(locality -> new ReturnLocalityDTO(
-								locality.getName(),
-								locality.getPrice(),
-								locality.getTicketsSold(),
-								locality.getMaxCapability()))
-						.collect(Collectors.toList()),
-			event.getTags() == null ? null
-					: event.getTags().stream()
-						.map(tag -> new EventTagDTO(
-								tag.getName(),
-								tag.getColor(),
-								tag.getTextColor()))
-						.collect(Collectors.toList()),
-				event.getStatus(),
-				event.getType());
+	private final Function<Event, EventDTO> eventMapper = event -> {
+		return new EventDTO(
+					event.getName(),
+					event.getEventImage(),
+					event.getLocalityImage(),
+					event.getCity(),
+					event.getDescription(),
+					event.getAddress(),
+					event.getStartTime().toString(),
+					event.getEndTime().toString(),
+					event.getLocalities() == null ? null
+						: event.getLocalities()
+							.stream()
+							.map(locality -> new ReturnLocalityDTO(
+									locality.getName(),
+									locality.getPrice(),
+									locality.getTicketsSold(),
+									locality.getMaxCapability()))
+							.collect(Collectors.toList()),
+				event.getTags() == null ? null
+						: event.getTags().stream()
+							.map(tagToDtoMapper)
+							.collect(Collectors.toList()),
+					event.getStatus(),
+					event.getType());
+	};
 
 	/**
 	 * Maps {@link Calendar} to {@link CalendarDTO}

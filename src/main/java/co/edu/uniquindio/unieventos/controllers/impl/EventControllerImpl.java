@@ -4,9 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,10 +46,11 @@ public class EventControllerImpl implements EventController {
 	}
 
 	@Override
-	@PutMapping("/edit")
+	@PostMapping("/edit")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> editEvent(@RequestBody @Valid EditEventDTO dto, HttpServletRequest request)
+	public ResponseEntity<?> editEvent(@Valid @ModelAttribute EditEventDTO dto, HttpServletRequest request)
 			throws Exception {
+		System.err.println(dto);
 		authUtils.verifyRoleAdmin(request);
 		return ResponseEntity.ok(eventService.editEvent(dto));
 	}
@@ -67,7 +67,7 @@ public class EventControllerImpl implements EventController {
 
 
 	@Override
-	@GetMapping("/list")
+	@PostMapping("/list")
 	public ResponseEntity<?> getEvents(@Valid @RequestBody SearchEventDTO dto) throws Exception {
 		return ResponseEntity.ok(eventService.findEvents(dto));
 	}

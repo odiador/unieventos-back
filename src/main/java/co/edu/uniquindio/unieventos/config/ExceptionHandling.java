@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import co.edu.uniquindio.unieventos.dto.exceptions.ErrorDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldsDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.MultiErrorDTO;
+import co.edu.uniquindio.unieventos.exceptions.BadRequestException;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DeletedAccountException;
@@ -31,6 +34,7 @@ public class ExceptionHandling {
 	public ResponseEntity<?> handleInvalidatedFields(MethodArgumentNotValidException ex) {
 		return ResponseEntity.badRequest()
 				.body(new InvalidFieldsDTO(400,
+						"Hay campos inválidos",
 						ex.getBindingResult().getFieldErrors().stream()
 								.map(e -> new InvalidFieldDTO(e.getField(), e.getDefaultMessage()))
 								.collect(Collectors.toList())));
@@ -94,5 +98,12 @@ public class ExceptionHandling {
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<?> handlerException(ConstraintViolationException e) {
 		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
+	}
+
+	@ExceptionHandler(BadRequestException.class)
+	public ResponseEntity<?> handlerException(BadRequestException e) {
+		InvalidFieldDTO dto = new InvalidFieldDTO(e.getField(), e.getMessage());
+		ArrayList<InvalidFieldDTO> list = new ArrayList<InvalidFieldDTO>(List.of(dto));
+		return ResponseEntity.status(400).body(new InvalidFieldsDTO(400, "Hay campos inválidos", list));
 	}
 }

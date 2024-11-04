@@ -19,4 +19,6 @@ public interface CalendarController {
 	ResponseEntity<?> deleteCalendar(@ValidObjectId @NotNull String id, HttpServletRequest request) throws Exception;
 
 	ResponseEntity<?> searchCalendars(@Valid SearchPageDTO dto) throws Exception;
+
+	ResponseEntity<?> findCalendar(@Valid String id) throws Exception;
 }

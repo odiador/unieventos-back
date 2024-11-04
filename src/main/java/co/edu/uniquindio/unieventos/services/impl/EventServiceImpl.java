@@ -19,6 +19,8 @@ import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
+import co.edu.uniquindio.unieventos.exceptions.BadRequestException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
@@ -87,12 +89,7 @@ public class EventServiceImpl implements EventService {
 		List<EventTag> tags = dto.getTags() == null
 				? new ArrayList<EventTag>()
 				: dto.getTags().stream()
-		    .map(t -> EventTag.builder()
-		    		.name(t.name())
-		    		.color(t.color())
-		    		.textColor(t.textColor())
-		    		.build() 
-				).collect(Collectors.toList());
+		    .map(mappers.getDtoToTagMapper()).collect(Collectors.toList());
 		Event event = Event.builder()
 			    .name(dto.getName())
 			    .eventImage(eventImage)
@@ -120,47 +117,51 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public EventDTO editEvent(@Valid EditEventDTO dto) throws Exception {
-		Calendar calendar = searchCalendar(dto.idCalendar());
-		Event event = findEventOrThrow(dto.name(), calendar.getEvents());
+		Calendar calendar = searchCalendar(dto.getIdCalendar());
+		Event event = findEventOrThrow(dto.getName(), calendar.getEvents());
 
-		if (dto.localities() != null)
-			editLocalities(dto.localities(), event);
+		LocalDateTime start = dto.getStartTime() != null ? LocalDateTime.parse(dto.getStartTime())
+				: event.getStartTime();
+		LocalDateTime end = dto.getEndTime() != null ? LocalDateTime.parse(dto.getEndTime()) : event.getEndTime();
 
-	    if (dto.address() != null)
-	        event.setAddress(dto.address());
+		if (start.isAfter(end))
+			throw new BadRequestException("La fecha de inicio tiene que ser antes que la de fin", "endTime");
 
-	    if (dto.city() != null)
-	        event.setCity(dto.city());
+		if (dto.getLocalities() != null)
+			editLocalities(dto.getLocalities(), event);
 
-	    if (dto.description() != null)
-	        event.setDescription(dto.description());
+	    if (dto.getAddress() != null)
+	        event.setAddress(dto.getAddress());
 
-	    if (dto.startTime() != null)
-	        event.setStartTime(LocalDateTime.parse(dto.startTime()));
+	    if (dto.getCity() != null)
+	        event.setCity(dto.getCity());
 
-	    if (dto.endTime() != null) 
-	        event.setEndTime(LocalDateTime.parse(dto.endTime()));
+		if (dto.getDescription() != null)
+			event.setDescription(dto.getDescription());
 
-	    if (dto.eventImage() != null) {
-	    	String eventImage = imagesService.uploadImage(dto.eventImage());
+		event.setStartTime(start);
+		event.setEndTime(end);
+
+		if (dto.getEventImage() != null) {
+	    	String eventImage = imagesService.uploadImage(dto.getEventImage());
 	        event.setEventImage(eventImage);
 	    }
 
-	    if (dto.localityImage() != null) {
-			String localityImage = imagesService.uploadImage(dto.localityImage());
+	    if (dto.getLocalityImage() != null) {
+			String localityImage = imagesService.uploadImage(dto.getLocalityImage());
 	        event.setLocalityImage(localityImage);
 	    }
 
-	    if (dto.tags() != null) 
-	    	editTags(dto.tags(), event);
+	    if (dto.getTags() != null) 
+	    	editTags(dto.getTags(), event);
 
-	    if (dto.status() != null)
-	        event.setStatus(EventStatus.valueOf(dto.status()));
+	    if (dto.getStatus() != null)
+	        event.setStatus(EventStatus.valueOf(dto.getStatus()));
 
-	    if (dto.type() != null)
-	        event.setType(EventType.valueOf(dto.type()));
+	    if (dto.getType() != null)
+	        event.setType(EventType.valueOf(dto.getType()));
 
-		calendar.updateEvent(event);
+		calendar.updateEvent(event, dto.getNewName());
 		calendarRepository.save(calendar);
 		return mappers.getEventMapper().apply(event);
 	}
@@ -203,18 +204,18 @@ public class EventServiceImpl implements EventService {
 				.collect(Collectors.toMap(EventTag::getName, locality -> locality));
 
 		List<EventTag> newTags = tagsDTO.stream()
-				.map(l -> {
-					EventTag existingTag = existingLocs.get(l.name());
+				.map((EventTagDTO l) -> {
+					EventTag existingTag = existingLocs.get(l.getName());
 					
 					if (existingTag != null) {
-						existingTag.setColor(l.color());
-						existingTag.setTextColor(l.textColor());
-						return existingTag;
+						existingTag.setColor(l.getColor());
+						existingTag.setTextColor(l.getTextColor());
+						return (EventTag) existingTag;
 					} else 
 						return EventTag.builder()
-								.name(l.name())
-								.color(l.color())
-								.textColor(l.textColor())
+								.name(l.getName())
+								.color(l.getColor())
+								.textColor(l.getTextColor())
 								.build();
 				})
 				.collect(Collectors.toList());
@@ -225,9 +226,10 @@ public class EventServiceImpl implements EventService {
 
 
 	@Override
-	public List<EventDTO> findEvents(SearchEventDTO dto) {
+	public ResponseDTO<?> findEvents(SearchEventDTO dto) {
 		LocalDate date = dto.date()!=null?LocalDate.parse(dto.date()):null;
 		List<Calendar> calendars = calendarRepositoryCustom.findCalendarsWithFilteredEvents(
+				dto.id(),
 				dto.name(),
 				dto.city(),
 				date,
@@ -238,7 +240,10 @@ public class EventServiceImpl implements EventService {
 		for (Calendar calendar : calendars)
 			for (Event event : calendar.getEvents())
 				events.add(event);
-		return events.stream().map(mappers.getEventMapper()).collect(Collectors.toList());
+		return new ResponseDTO<>("Se encontraron eventos:",
+				events.stream()
+				.map(mappers.getEventMapper())
+				.collect(Collectors.toList()));
 	}
 
 	@Override
@@ -246,7 +251,7 @@ public class EventServiceImpl implements EventService {
 		Calendar calendar = searchCalendar(dto.idCalendar());
 		Event event = findEventOrThrow(dto.name(), calendar.getEvents());
 		event.setStatus(EventStatus.DELETED);
-		calendar.updateEvent(event);
+		calendar.updateEvent(event, null);
 		calendarRepository.save(calendar);
 	}
 }

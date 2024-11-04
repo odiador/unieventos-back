@@ -63,4 +63,10 @@ public class CalendarControllerImpl implements CalendarController {
 		return ResponseEntity.ok(calendarService.searchDalendars(dto));
 	}
 
+	@Override
+	@PostMapping("/findById")
+	public ResponseEntity<?> findCalendar(@Valid @RequestBody String id) throws Exception {
+		return ResponseEntity.ok(calendarService.findOnlyCalendar(id));
+	}
+
 }

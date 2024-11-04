@@ -24,12 +24,15 @@ public class CalendarRepositoryCustomImpl implements CalendarRepositoryCustom {
 	private MongoTemplate mongoTemplate;
 
 	@Override
-	public List<Calendar> findCalendarsWithFilteredEvents(String name, String city, LocalDate date, String tagName,
-			int skip, int limit) {
+	public List<Calendar> findCalendarsWithFilteredEvents(String id, String name, String city, LocalDate date,
+			String tagName, int skip, int limit) {
 		List<Criteria> criteriaList = new ArrayList<>();
 
 		if (name != null) {
 			criteriaList.add(Criteria.where("events.name").regex(name, "i"));
+		}
+		if (id != null) {
+			criteriaList.add(Criteria.where("_id").is(id));
 		}
 		if (city != null) {
 			criteriaList.add(Criteria.where("events.city").regex(city, "i"));
@@ -38,7 +41,7 @@ public class CalendarRepositoryCustomImpl implements CalendarRepositoryCustom {
 			criteriaList.add(Criteria.where("events.date").is(date));
 		}
 		if (tagName != null) {
-		    criteriaList.add(Criteria.where("events.tags").elemMatch(Criteria.where("name").regex(tagName, "i")));
+			criteriaList.add(Criteria.where("events.tags").elemMatch(Criteria.where("name").regex(tagName, "i")));
 		}
 
 		criteriaList.add(Criteria.where("events.status").ne("DELETED"));

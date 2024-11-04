@@ -1,6 +1,7 @@
 package co.edu.uniquindio.unieventos.services.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,12 +15,16 @@ import co.edu.uniquindio.unieventos.config.Mappers;
 import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.CreateCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.EditCalendarDTO;
+import co.edu.uniquindio.unieventos.dto.calendar.OnlyCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.SearchPageDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.model.documents.Calendar;
 import co.edu.uniquindio.unieventos.model.vo.Event;
+import co.edu.uniquindio.unieventos.model.vo.EventTag;
 import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
 import co.edu.uniquindio.unieventos.services.CalendarService;
 import co.edu.uniquindio.unieventos.services.ImagesService;
@@ -89,17 +94,54 @@ public class CalendarServiceImpl implements CalendarService {
 	}
 
 	@Override
-	public List<CalendarDTO> searchDalendars(@Valid SearchPageDTO dto) {
+	public ResponseDTO<?> searchDalendars(@Valid SearchPageDTO dto) {
 		Sort sort = Sort.by("name");
 		if (dto.asc())
 			sort = sort.ascending();
 		else
 			sort = sort.descending();
 		Pageable pageable = PageRequest.of(dto.page(), dto.size(), sort);
-		return calendarRepository.findAll(pageable)
+		return new ResponseDTO<>("Calendarios encontrados:",
+				calendarRepository.findAll(pageable)
 				.stream()
-				.map(mappers.getCalendarMapper())
-				.collect(Collectors.toList());
+						.map(c -> {
+							List<EventTagDTO> tags = fillTags(c);
+							OnlyCalendarDTO calDTO = new OnlyCalendarDTO(c.getId(), c.getName(), c.getDescription(),
+									c.getImage(), c.getBannerImage(), tags);
+							return calDTO;
+						})
+				.collect(Collectors.toList()));
+	}
+
+	@Override
+	public ResponseDTO<?> findOnlyCalendar(@Valid String id) throws Exception {
+		Calendar c = calendarRepository
+				.findById(id).orElseThrow(() -> new DocumentNotFoundException("El calendario no fue encontrado"));
+		List<EventTagDTO> tags = fillTags(c);
+		OnlyCalendarDTO dto = new OnlyCalendarDTO(c.getId(), c.getName(), c.getDescription(), c.getImage(),
+				c.getBannerImage(), tags);
+		return new ResponseDTO<>("El calendario fue encontrado", dto);
+	}
+
+	private List<EventTagDTO> fillTags(Calendar c) {
+		HashMap<String, EventTag> tags = new HashMap<String, EventTag>();
+		List<Event> events = c.getEvents();
+		int eSize = events.size();
+		for (int i = 0; i < eSize; i++) {
+			List<EventTag> eachEventTags = events.get(i).getTags();
+			int tagSize = eachEventTags.size();
+			for (int j = 0; j < tagSize; j++) {
+				EventTag eventTag = eachEventTags.get(j);
+				tags.putIfAbsent(eventTag.getName(), eventTag);
+			}
+		}
+		return tags.values().stream().map(mappers.getTagToDtoMapper()).toList();
+	}
+
+	@Override
+	public ResponseDTO<?> findCalendar(@Valid String id) throws Exception {
+		return new ResponseDTO<>("El calendario fue encotrado", mappers.getCalendarMapper()
+				.apply(calendarRepository.findById(id).orElseThrow(() -> new DocumentNotFoundException(id))));
 	}
 
 }

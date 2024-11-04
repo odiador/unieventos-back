@@ -5,46 +5,59 @@ import java.util.List;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.web.multipart.MultipartFile;
 
+import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFormat;
 import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFutureFormat;
 import co.edu.uniquindio.unieventos.misc.validation.ValidEnum;
 import co.edu.uniquindio.unieventos.model.enums.EventStatus;
 import co.edu.uniquindio.unieventos.model.enums.EventType;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-public record EditEventDTO(
-		@NotNull
-		String idCalendar,
+@Getter
+@Setter
+@ToString
+public class EditEventDTO {
+	private String idCalendar;
 
-		@Length(min = 0, max = 100)
-		String name,
+	@Length(min = 0, max = 100)
+	private String name;
 
-		MultipartFile eventImage,
+	@Length(min = 0, max = 100)
+	private String newName;
 
-		MultipartFile localityImage,
+	private MultipartFile eventImage;
 
-		@Length(min = 0, max = 50)
-		String city, 
+	private MultipartFile localityImage;
 
-		@Length(min = 0, max = 400)
-		String description,
+	@Length(min = 0, max = 50)
+	private String city;
 
-		@Length(min = 0, max = 250)
-		String address,
+	@Length(min = 0, max = 400)
+	private String description;
 
-		@ValidDateTimeFutureFormat
-		String startTime,
+	@Length(min = 0, max = 250)
+	private String address;
 
-		@ValidDateTimeFutureFormat
-		String endTime,
+	
+	@ValidDateTimeFormat(message = "Formato de fecha inválido")
+	@ValidDateTimeFutureFormat(message = "La fecha de inicio no debe de haber pasado")
+	private String startTime;
 
-		List<@Valid EditLocalityDTO> localities,
 
-		List<@Valid EventTagDTO> tags,
+	@ValidDateTimeFormat(message = "Formato de fecha inválido")
+	@ValidDateTimeFutureFormat(message = "La fecha de fin no debe de haber pasado")
+	private String endTime;
 
-		@ValidEnum(enumClass = EventStatus.class, message = "El estado del evento es inválido")
-		String status,
+	private List<@Valid EditLocalityDTO> localities;
 
-		@ValidEnum(enumClass = EventType.class, message = "El tipo del evento es inválido")
-		String type
-) {}
+	private List<@Valid EventTagDTO> tags;
+
+	@ValidEnum(enumClass = EventStatus.class, message = "El estado del evento es inválido")
+	private String status;
+
+	@ValidEnum(enumClass = EventType.class, message = "El tipo del evento es inválido")
+	private String type;
+	
+}

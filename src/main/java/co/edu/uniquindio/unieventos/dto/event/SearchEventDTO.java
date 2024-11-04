@@ -3,6 +3,7 @@ package co.edu.uniquindio.unieventos.dto.event;
 import org.hibernate.validator.constraints.Length;
 
 import co.edu.uniquindio.unieventos.misc.validation.ValidDateFormat;
+import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -18,6 +19,9 @@ public record SearchEventDTO(
 
 		@Length(min = 0, max = 100)
 		String name,
+		
+		@ValidObjectId
+		String id,
 
 		@Length(min = 0, max = 100)
 		String city,
