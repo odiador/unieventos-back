@@ -5,6 +5,10 @@ public record CartDetailDTO(
 		int quantity,
 		String calendarId,
 		String eventName,
-		String localityName
+		String localityName,
+		double price,
+		String calendarName,
+		String eventImage,
+		int freeTickets
 
 ) {}

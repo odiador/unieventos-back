@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 
 import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
 import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
-import co.edu.uniquindio.unieventos.dto.carts.CartDTO;
-import co.edu.uniquindio.unieventos.dto.carts.CartDetailDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
@@ -21,7 +19,6 @@ import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDetailDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.model.documents.Calendar;
-import co.edu.uniquindio.unieventos.model.documents.Cart;
 import co.edu.uniquindio.unieventos.model.documents.Order;
 import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.model.vo.Event;
@@ -142,22 +139,6 @@ public class Mappers {
 				.localityName(detail.localityName())
 				.quantity(detail.quantity())
 				.build();
-	};
-	private final Function<CartDetail, CartDetailDTO> cartDetailToDTOMapper = (detail) -> {
-		return new CartDetailDTO(
-				detail.getQuantity(), 
-				detail.getCalendarId(), 
-				detail.getEventName(),
-				detail.getLocalityName());
-	};
-
-	private final Function<Cart, CartDTO> cartToDTOMapper = cart -> {
-		List<CartDetailDTO> items = new ArrayList<>();
-		if (cart.getItems() != null)
-			items = cart.getItems().stream()
-			.map(this.cartDetailToDTOMapper)
-			.collect(Collectors.toList()); 
-		return new CartDTO(cart.getId(), cart.getDate(), items, cart.getUserId());
 	};
 
 	private final Function<CartDetail, OrderDetail> mapper = e -> {

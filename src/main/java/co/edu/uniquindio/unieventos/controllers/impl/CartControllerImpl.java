@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.CartController;
 import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
+import co.edu.uniquindio.unieventos.dto.carts.ExistsCartItemDTO;
 import co.edu.uniquindio.unieventos.dto.carts.RemoveItemCartDTO;
 import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import co.edu.uniquindio.unieventos.services.CartService;
@@ -39,6 +40,16 @@ public class CartControllerImpl implements CartController {
 	}
 
 	@Override
+	@PostMapping("/cart/checkitem")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<?> checkCartItem(@Valid @RequestBody ExistsCartItemDTO dto, HttpServletRequest request)
+			throws Exception {
+		authUtils.verifyRoleClient(request);
+		String id = authUtils.getId(request);
+		return ResponseEntity.ok(cartService.validateExistsItem(dto, id));
+	}
+
+	@Override
 	@PostMapping("/cart/addItem")
 	@SecurityRequirement(name = "bearerAuth")
 	public ResponseEntity<?> addItemToCart(@Valid @RequestBody AddItemCartDTO dto, HttpServletRequest request) throws Exception {
@@ -54,13 +65,14 @@ public class CartControllerImpl implements CartController {
 			throws Exception {
 		authUtils.verifyRoleClient(request);
 		String id = authUtils.getId(request);
+		System.out.println(id);
 		return ResponseEntity.ok(cartService.deleteItemFromCart(dto,id));
 	}
 
 	@Override
 	@PostMapping("/find")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> findCart(@Valid @NotNull @ValidObjectId String idCart, HttpServletRequest request)
+	public ResponseEntity<?> findCart(@Valid @NotNull @ValidObjectId @RequestBody String idCart, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleClient(request);
 		String id = authUtils.getId(request);
