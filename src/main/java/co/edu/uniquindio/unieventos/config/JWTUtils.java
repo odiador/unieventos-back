@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -23,6 +24,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @Component
 public class JWTUtils {
 
+   @Autowired
+   private AuthProps authProps;
 
    public String generateToken(String email, Map<String, Object> claims){
       
@@ -44,8 +47,7 @@ public class JWTUtils {
    }
   
    private SecretKey getKey(){
-	   // TODO application.properties?
-       String claveSecreta = System.getProperty("JWTUTILS_SECRET");
+       String claveSecreta = authProps.getClientsecret();
        byte[] secretKeyBytes = claveSecreta.getBytes();
        return Keys.hmacShaKeyFor(secretKeyBytes);
    }
