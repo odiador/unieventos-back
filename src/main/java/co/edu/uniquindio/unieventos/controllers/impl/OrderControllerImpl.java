@@ -17,6 +17,7 @@ import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.OrderController;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
@@ -46,8 +47,9 @@ public class OrderControllerImpl implements OrderController {
 			throws Exception {
 		authUtils.verifyRoleClient(request);
 		String userId = authUtils.getId(request);
-		Preference pref = orderService.realizarPago(dto.id(), userId);
-		return ResponseEntity.status(HttpStatus.CREATED).body(new MercadoPagoURLDTO(pref.getInitPoint()));
+		Preference pref = orderService.realizarPago(dto.id(), userId, request.getAttribute("origin").toString());
+		return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO<>(
+				"Proceso de pago iniciado con MercadoPago", new MercadoPagoURLDTO(pref.getInitPoint())));
 	}
 
 	@Override

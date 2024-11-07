@@ -38,6 +38,7 @@ public class TokenFilter extends OncePerRequestFilter {
 		if ("https://amaevents.vercel.app".equals(origin) || "http://localhost".equals(origin)
 				|| "http://localhost:8082".equals(origin)) {
 			response.setHeader("Access-Control-Allow-Origin", origin);
+			request.setAttribute("origin", origin);
 		}
 		response.addHeader("Access-Control-Allow-Headers", "Origin, Accept, Content-Type, Authorization");
 		if (request.getMethod().equals("OPTIONS")) {

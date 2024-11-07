@@ -13,7 +13,7 @@ import co.edu.uniquindio.unieventos.model.documents.Order;
 
 public interface OrderService {
 
-	Preference realizarPago(String idOrden, String userId) throws Exception;
+	Preference realizarPago(String idOrden, String userId, String origin) throws Exception;
 
 	void receiveMercadoPagoNotification(Map<String, Object> request) throws PaymentException;
 
@@ -22,4 +22,5 @@ public interface OrderService {
 	List<PurchaseDTO> getPurchaseHistory(String mail) throws Exception;
 
 	OrderDTO createOrder(CreateOrderDTO dto) throws Exception;
+
 }

@@ -73,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
 	private Mappers mappers;
 
 	@Override
-	public Preference realizarPago(String idOrden, String userId) throws Exception {
+	public Preference realizarPago(String idOrden, String userId, String origin) throws Exception {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
@@ -124,15 +124,20 @@ public class OrderServiceImpl implements OrderService {
 		MercadoPagoConfig.setAccessToken(customProperties.getAccesstoken());
 
 		// Configurar las urls de retorno de la pasarela (Frontend)
-		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder().success("URL PAGO EXITOSO")
-				.failure("URL PAGO FALLIDO").pending("URL PAGO PENDIENTE").build();
+		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest
+				.builder()
+				.success(String.format("%s/home/orders/%s/status", origin, idOrden))
+				.failure(String.format("%s/home/orders/%s/status", origin, idOrden))
+				.pending(String.format("%s/home/orders/%s/status", origin, idOrden))
+				.build();
 
 		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de
 		// retorno
 		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
-		PreferenceRequest preferenceRequest = PreferenceRequest.builder().backUrls(backUrls).items(itemsPasarela)
-				.metadata(Map.of("id_orden", ordenGuardada.getId())).notificationUrl(format).build();
-
+		PreferenceRequest preferenceRequest = PreferenceRequest.builder()
+				.backUrls(backUrls).items(itemsPasarela)
+				.metadata(Map.of("id_orden", ordenGuardada.getId()))
+				.notificationUrl(format).build();
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
 		Preference preference = client.create(preferenceRequest);
