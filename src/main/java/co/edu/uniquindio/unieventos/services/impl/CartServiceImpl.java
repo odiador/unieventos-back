@@ -14,7 +14,6 @@ import co.edu.uniquindio.unieventos.dto.carts.CartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.CartDetailDTO;
 import co.edu.uniquindio.unieventos.dto.carts.ExistsCartItemDTO;
 import co.edu.uniquindio.unieventos.dto.carts.RemoveItemCartDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.MaxCartsCreatedException;

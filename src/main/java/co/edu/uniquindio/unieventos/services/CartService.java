@@ -6,7 +6,6 @@ import co.edu.uniquindio.unieventos.dto.carts.AddItemCartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.CartDTO;
 import co.edu.uniquindio.unieventos.dto.carts.ExistsCartItemDTO;
 import co.edu.uniquindio.unieventos.dto.carts.RemoveItemCartDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

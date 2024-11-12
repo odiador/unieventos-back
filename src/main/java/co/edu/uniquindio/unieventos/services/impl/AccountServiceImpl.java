@@ -21,7 +21,6 @@ import co.edu.uniquindio.unieventos.dto.auth.RecoveryPasswordMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;

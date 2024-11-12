@@ -8,7 +8,6 @@ import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginResponseDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;

@@ -21,7 +21,6 @@ import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.BadRequestException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;

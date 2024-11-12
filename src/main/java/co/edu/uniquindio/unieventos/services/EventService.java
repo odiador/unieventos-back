@@ -8,7 +8,6 @@ import co.edu.uniquindio.unieventos.dto.event.EventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import jakarta.validation.Valid;
 
 public interface EventService {
