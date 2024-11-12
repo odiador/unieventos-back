@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.controllers.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,6 +16,8 @@ import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.EventController;
 import co.edu.uniquindio.unieventos.dto.event.CreateEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.EditEventDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventDTO;
+import co.edu.uniquindio.unieventos.dto.event.EventWCalIdDTO;
 import co.edu.uniquindio.unieventos.dto.event.FindEventDTO;
 import co.edu.uniquindio.unieventos.dto.event.SearchEventDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -39,45 +43,45 @@ public class EventControllerImpl implements EventController {
 	@Override
 	@PostMapping("/create")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> createEvent(@Valid CreateEventDTO dto, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<EventDTO>> createEvent(@Valid CreateEventDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleAdmin(request);
-		return ResponseEntity.status(201).body(eventService.createEvent(dto));
+		return ResponseEntity.status(201).body(new ResponseDTO<>("Evento creado con éxito",
+				eventService.createEvent(dto)));
 	}
 
 	@Override
 	@PostMapping("/edit")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> editEvent(@Valid @ModelAttribute EditEventDTO dto, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<EventDTO>> editEvent(@Valid @ModelAttribute EditEventDTO dto, HttpServletRequest request)
 			throws Exception {
 		System.err.println(dto);
 		authUtils.verifyRoleAdmin(request);
-		return ResponseEntity.ok(eventService.editEvent(dto));
+		return ResponseEntity.ok(new ResponseDTO<>("Evento editado con éxito",
+				eventService.editEvent(dto)));
 	}
 
 	@Override
 	@PostMapping("/find")
-	public ResponseEntity<?> findEvent(@RequestBody @NotNull FindEventDTO dto) throws Exception {
-		return ResponseEntity.ok(
-				new ResponseDTO<>(
-						"El evento ha sido encontrado con éxito", 
-						eventService.findEvent(dto)
-				));
+	public ResponseEntity<ResponseDTO<EventDTO>> findEvent(@RequestBody @NotNull FindEventDTO dto) throws Exception {
+		return ResponseEntity.ok(new ResponseDTO<>("El evento ha sido encontrado con éxito", 
+				eventService.findEvent(dto)));
 	}
 
 
 	@Override
 	@PostMapping("/list")
-	public ResponseEntity<?> getEvents(@Valid @RequestBody SearchEventDTO dto) throws Exception {
-		return ResponseEntity.ok(eventService.findEvents(dto));
+	public ResponseEntity<ResponseDTO<List<EventWCalIdDTO>>> getEvents(@Valid @RequestBody SearchEventDTO dto) throws Exception {
+		return ResponseEntity.ok(new ResponseDTO<>("Se encontraron eventos:",
+				eventService.findEvents(dto)));
 	}
 	@Override
 	@DeleteMapping("/delete")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> deleteEvent(@RequestBody @Valid FindEventDTO dto, HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<Void>> deleteEvent(@RequestBody @Valid FindEventDTO dto, HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleAdmin(request);
 		eventService.deleteEvent(dto);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(new ResponseDTO<>("El evento ha sido eliminado con éxito", null));
 	}
 
 }

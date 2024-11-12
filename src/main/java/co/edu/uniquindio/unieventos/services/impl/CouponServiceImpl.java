@@ -53,7 +53,7 @@ public class CouponServiceImpl implements CouponService {
 
 	@Override
 	public Coupon getCouponById(String id) throws Exception {
-		return couponRepository.findById(id)
+		return couponRepository.findByIdAndStatus(id, CouponStatus.AVAILABLE)
 				.orElseThrow(() -> new DocumentNotFoundException("El cupon con ese id no existe"));
 	}
 //

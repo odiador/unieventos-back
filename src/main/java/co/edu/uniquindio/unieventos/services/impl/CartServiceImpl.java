@@ -39,7 +39,7 @@ public class CartServiceImpl implements CartService {
 	private CalendarRepository calendarRepository;
 
 	@Override
-	public ResponseDTO<CartDTO> createCart(String userId) throws Exception {
+	public CartDTO createCart(String userId) throws Exception {
 		if (cartRepository.findByUserId(userId).size() >= 3)
 			throw new MaxCartsCreatedException("La cantidad máxima de carritos es de 3");
 		Cart cart = Cart.builder()
@@ -48,14 +48,14 @@ public class CartServiceImpl implements CartService {
 				.items(new ArrayList<CartDetail>())
 				.build();
 		cart = cartRepository.save(cart);
-		return new ResponseDTO<CartDTO>("Carrito creado", buildCartDTO(cart));
+		return buildCartDTO(cart);
 	}
 
 	@Override
-	public ResponseDTO<CartDTO> getCartById(String id, String idCart) throws Exception {
+	public CartDTO getCartById(String id, String idCart) throws Exception {
 		Cart cart = cartRepository.findByIdAndUserId(idCart, id)
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito no pudo ser obtenido"));
-		return new ResponseDTO<CartDTO>("Carrito encontrado", buildCartDTO(cart));
+		return buildCartDTO(cart);
 	}
 
 	private CartDTO buildCartDTO(Cart cart) {
@@ -118,18 +118,17 @@ public class CartServiceImpl implements CartService {
 	}
 
 	@Override
-	public ResponseDTO<List<CartDTO>> getCartsByUserId(String userId) {
-		return new ResponseDTO<List<CartDTO>>("Carritos encontrados", 
-				cartRepository.findByUserId(userId).stream()
-						.map(c -> buildCartDTO(c)).collect(Collectors.toList()));
+	public List<CartDTO> getCartsByUserId(String userId) {
+		return cartRepository.findByUserId(userId).stream()
+						.map(c -> buildCartDTO(c)).collect(Collectors.toList());
 	}
 
 	@Override
-	public ResponseDTO<CartDTO> clearCart(String id, String userId) throws Exception {
+	public void clearCart(String id, String userId) throws Exception {
 		Cart cart = cartRepository.findByIdAndUserId(id, userId)
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito no pudo ser obtenido"));
 		cart.setItems(List.of());
-		return new ResponseDTO<CartDTO>("Carrito limpiado", buildCartDTO(cart));
+		cart = cartRepository.save(cart);
 	}
 
 	@Override
@@ -140,7 +139,7 @@ public class CartServiceImpl implements CartService {
 	}
 
 	@Override
-	public ResponseDTO<Boolean> saveItemToCart(AddItemCartDTO dto, String id) throws Exception {
+	public void saveItemToCart(AddItemCartDTO dto, String id) throws Exception {
 		Cart cart = cartRepository.findByIdAndUserId(dto.cartId(), id).orElseThrow(() -> new DocumentNotFoundException("El carrito no fue encontrado"));
 		CartDetail found = null;
 		int index = -1;
@@ -176,11 +175,10 @@ public class CartServiceImpl implements CartService {
 			cart.addItem(detail);
 		}
 		cartRepository.save(cart);
-		return new ResponseDTO<>("Item guardado", true);
 	}
 
 	@Override
-	public ResponseDTO<Boolean> validateExistsItem(ExistsCartItemDTO dto,
+	public boolean validateExistsItem(ExistsCartItemDTO dto,
 			@NotBlank
 			@ValidObjectId
 			@Valid
@@ -197,11 +195,11 @@ public class CartServiceImpl implements CartService {
 		for (CartDetail item : items) {
 			if (item.getCalendarId().equals(dto.calendarId()) && item.getEventName().equals(dto.eventName())
 					&& item.getLocalityName().equals(dto.localityName())) {
-				return new ResponseDTO<Boolean>("El item existe en el carrito", true);
+				return true;
 
 			}
 		}
-		return new ResponseDTO<Boolean>("El item no existe en el carrito", false);
+		return false;
 	}
 
 	private Locality findLocality(String name, List<Locality> localities) throws DocumentNotFoundException {
@@ -222,7 +220,7 @@ public class CartServiceImpl implements CartService {
 	}
 
 	@Override
-	public ResponseDTO<Boolean> deleteItemFromCart(RemoveItemCartDTO dto, String userId) throws Exception {
+	public void deleteItemFromCart(RemoveItemCartDTO dto, String userId) throws Exception {
 		Cart cart = cartRepository.findByIdAndUserId(dto.cartId(), userId).orElseThrow(() -> new DocumentNotFoundException("El carrito no fue encontrado"));
 		int index = -1;
 		List<CartDetail> items = cart.getItems();
@@ -241,7 +239,6 @@ public class CartServiceImpl implements CartService {
 		findLocality(dto.localityName(), event.getLocalities());
 		cart.removeItemIndex(index);
 		cartRepository.save(cart);
-		return new ResponseDTO<>("Item eliminado", true);
 	}
 
 }

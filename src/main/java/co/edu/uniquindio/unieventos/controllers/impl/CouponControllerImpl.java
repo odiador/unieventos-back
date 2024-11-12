@@ -15,9 +15,13 @@ import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.CouponController;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponCodeDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
+import co.edu.uniquindio.unieventos.model.documents.Coupon;
 import co.edu.uniquindio.unieventos.services.CouponService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @RestController
 @RequestMapping("/api/coupons")
@@ -32,27 +36,30 @@ public class CouponControllerImpl implements CouponController {
 	@Override
 	@PostMapping("/create")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> createCoupon(@RequestBody CouponDTO dto, HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<CouponCodeDTO>> createCoupon(@RequestBody @Valid CouponDTO dto, HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleAdmin(request);
 		String code = service.saveCoupon(dto);
-		return ResponseEntity.status(HttpStatus.CREATED).body(new CouponCodeDTO(code));
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(new ResponseDTO<CouponCodeDTO>("Cupón creado con éxito", new CouponCodeDTO(code)));
 	}
 
 	@Override
 	@GetMapping("/findId")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> findById(@RequestParam("id") String id, HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<Coupon>> findById(@RequestParam("id") @NotNull String id, HttpServletRequest request) throws Exception {
 		authUtils.verifyMinRoleClient(request);
-		return ResponseEntity.status(HttpStatus.OK).body(service.getCouponById(id));
+		ResponseDTO<Coupon> dto = new ResponseDTO<>("Cupón encontrado", service.getCouponById(id));
+		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 
 	@Override
 	@GetMapping("/find")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> findByCode(@RequestParam("code") String code, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<Coupon>> findByCode(@RequestParam("code") @NotNull String code, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyMinRoleClient(request);
-		return ResponseEntity.status(HttpStatus.OK).body(service.getCouponByCode(code));
+		ResponseDTO<Coupon> dto = new ResponseDTO<>("Cupón encontrado", service.getCouponByCode(code));
+		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 
 }

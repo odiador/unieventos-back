@@ -94,15 +94,14 @@ public class CalendarServiceImpl implements CalendarService {
 	}
 
 	@Override
-	public ResponseDTO<?> searchDalendars(@Valid SearchPageDTO dto) {
+	public List<OnlyCalendarDTO> searchDalendars(@Valid SearchPageDTO dto) {
 		Sort sort = Sort.by("name");
 		if (dto.asc())
 			sort = sort.ascending();
 		else
 			sort = sort.descending();
 		Pageable pageable = PageRequest.of(dto.page(), dto.size(), sort);
-		return new ResponseDTO<>("Calendarios encontrados:",
-				calendarRepository.findAll(pageable)
+		return calendarRepository.findAll(pageable)
 				.stream()
 						.map(c -> {
 							List<EventTagDTO> tags = fillTags(c);
@@ -110,17 +109,17 @@ public class CalendarServiceImpl implements CalendarService {
 									c.getImage(), c.getBannerImage(), tags);
 							return calDTO;
 						})
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public ResponseDTO<?> findOnlyCalendar(@Valid String id) throws Exception {
+	public OnlyCalendarDTO findOnlyCalendar(@Valid String id) throws Exception {
 		Calendar c = calendarRepository
 				.findById(id).orElseThrow(() -> new DocumentNotFoundException("El calendario no fue encontrado"));
 		List<EventTagDTO> tags = fillTags(c);
 		OnlyCalendarDTO dto = new OnlyCalendarDTO(c.getId(), c.getName(), c.getDescription(), c.getImage(),
 				c.getBannerImage(), tags);
-		return new ResponseDTO<>("El calendario fue encontrado", dto);
+		return dto;
 	}
 
 	private List<EventTagDTO> fillTags(Calendar c) {

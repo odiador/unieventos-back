@@ -15,6 +15,7 @@ import co.edu.uniquindio.unieventos.controllers.AccountController;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
+import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.services.AccountService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -34,31 +35,33 @@ public class AccountControllerImpl implements AccountController {
 	@Override
 	@PutMapping("/edit")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<UserDataDTO>> editAccount(@Valid @RequestBody EditUserDataDTO account, HttpServletRequest request)
 			throws Exception {
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new DocumentNotFoundException("Tu cuenta no fue encontrada");
-		return ResponseEntity.ok(accountService.editAccount(mail, account));
+		return ResponseEntity.ok(new ResponseDTO<UserDataDTO>("Tu cuenta ha sido editada exitosamente",
+				accountService.editAccount(mail, account)));
 	}
 
 	@Override
 	@DeleteMapping("/delete")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<String>> deleteAccount(@Valid @RequestBody LoginDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyMail(dto.email(), request);
-		return ResponseEntity.ok(accountService.deleteAccount(dto));
+		accountService.deleteAccount(dto);
+		return ResponseEntity.ok(new ResponseDTO<String>("Tu cuenta ha sido eliminada exitosamente", null));
 	}
 
 	@Override
 	@GetMapping("/info")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<UserDataDTO> getAccountInfo(HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<UserDataDTO>> getAccountInfo(HttpServletRequest request) throws Exception {
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new DocumentNotFoundException("Tu cuenta no fue encontrada");
 		UserDataDTO accountInfo = accountService.getAccountInfo(mail);
-		return ResponseEntity.ok(accountInfo);
+		return ResponseEntity.ok(new ResponseDTO<UserDataDTO>("Tu cuenta ha sido encontrada", accountInfo));
 	}
 }

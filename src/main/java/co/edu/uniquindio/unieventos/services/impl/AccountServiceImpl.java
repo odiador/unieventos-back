@@ -95,7 +95,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> editAccount(String email, @Valid EditUserDataDTO dto) throws Exception {
+	public UserDataDTO editAccount(String email, @Valid EditUserDataDTO dto) throws Exception {
 		Optional<Account> accountOpt = repo.findByEmail(email);
 		if (accountOpt.isEmpty())
 			throw new DocumentNotFoundException("La cuenta no existe");
@@ -110,16 +110,14 @@ public class AccountServiceImpl implements AccountService {
 				.build();
 		account.setUser(ud);
 		repo.save(account);
-		return new ResponseDTO<UserDataDTO>("Tu cuenta ha sido editada exitosamente",
-				new UserDataDTO(dto.name(), dto.cedula(), dto.adress(), dto.city(), dto.phone()));
+		return new UserDataDTO(dto.name(), dto.cedula(), dto.adress(), dto.city(), dto.phone());
 	}
 
 	@Override
-	public ResponseDTO<?> deleteAccount(LoginDTO dto) throws Exception {
+	public void deleteAccount(LoginDTO dto) throws Exception {
 		Account account = verifyLogin(dto);
 		account.setStatus(AccountStatus.DELETED);
 		repo.save(account);
-		return new ResponseDTO<String>("Tu cuenta ha sido eliminada exitosamente", null);
 	}
 
 	@Override
@@ -130,7 +128,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> sendRecuperationCode(@Valid @Email String email) throws Exception {
+	public void sendRecuperationCode(@Valid @Email String email) throws Exception {
 		Account account = repo.findByEmail(email)
 				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no existe"));
 		if (account.getStatus() == AccountStatus.UNVERIFIED)
@@ -152,7 +150,6 @@ public class AccountServiceImpl implements AccountService {
 		account.setPasswordRecuperationCode(newValCode);
 		emailService.sendPasswordRecoveryMail(new RecoveryPasswordMailSendDTO(email, newValCode.getCode()));
 		repo.save(account);
-		return new ResponseDTO<String>("Se ha enviado el correo de recuperación de contraseña exitosamente", null);
 	}
 
 
@@ -164,7 +161,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> changePassword(@Valid ChangePasswordDTO dto)
+	public void changePassword(@Valid ChangePasswordDTO dto)
 			throws DocumentNotFoundException, InvalidCodeException {
 		Account account = repo.findByEmail(dto.email())
 				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"));
@@ -176,7 +173,6 @@ public class AccountServiceImpl implements AccountService {
 
 		account.setPassword(encryptPassword(dto.newPassword()));
 		repo.save(account);
-		return new ResponseDTO<String>("Tu contraseña ha sido cambiada exitosamente", null);
 	}
 
 	private boolean codeExpired(LocalDateTime timestamp) {
@@ -186,14 +182,12 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception {
+	public LoginResponseDTO login(@Valid LoginDTO loginDTO) throws Exception {
 		Account accFound = verifyLogin(loginDTO);
 		Map<String, Object> map = buildClaims(accFound);
-		return new ResponseDTO<LoginResponseDTO>("Se pudo iniciar sesión",
-				new LoginResponseDTO(
+		return new LoginResponseDTO(
 						mappers.getUserDataToDto().apply(accFound.getUser()),
-						jwtUtils.generateToken(accFound.getEmail(), map))
-				);
+						jwtUtils.generateToken(accFound.getEmail(), map));
 
 	}
 
@@ -215,7 +209,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> resendActivationCode(String email) throws Exception {
+	public void resendActivationCode(String email) throws Exception {
 		Account account = repo.findByEmail(email)
 				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no existe"));
 		if (account.getStatus() != AccountStatus.UNVERIFIED)
@@ -233,11 +227,10 @@ public class AccountServiceImpl implements AccountService {
 		account.setRegisterValidationCode(newValCode);
 		emailService.sendVerificationMail(new VerifyMailSendDTO(email, newValCode.getCode()));
 		repo.save(account);
-		return new ResponseDTO<String>("Se mandó un código de activación a tu cuenta exitosamente", null);
 	}
 
 	@Override
-	public ResponseDTO<?> activateAccount(@Valid ActivateAccountDTO dto)
+	public void activateAccount(@Valid ActivateAccountDTO dto)
 			throws DocumentNotFoundException, InvalidCodeException, ConflictException {
 		Account account = repo.findByEmail(dto.email())
 				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"));
@@ -250,7 +243,6 @@ public class AccountServiceImpl implements AccountService {
 			throw new InvalidCodeException("Tu código es inválido");
 		account.setStatus(AccountStatus.ACTIVE);
 		repo.save(account);
-		return new ResponseDTO<String>("Tu cuenta ha sido activada exitosamente", null);
 	}
 
 	private String encryptPassword(String password) {
@@ -262,26 +254,23 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception {
+	public void validateMail(@Valid @Email String email) throws Exception {
 		DocumentNotFoundException e = new DocumentNotFoundException("Tu cuenta no existe");
 		Account account = repo.findByEmail(email).orElseThrow(() -> e);
 		if (account.getStatus() == AccountStatus.DELETED)
 			throw e;
 		if (account.getStatus() == AccountStatus.UNVERIFIED)
 			throw new ConflictException("Tu cuenta no está activa");
-		return new ResponseDTO<String>("Tu cuenta si está activa", null);
 	}
 
 	@Override
-	public ResponseDTO<?> checkUser(@Email @NotNull String mail) throws Exception {
+	public CheckUserDTO checkUser(@Email @NotNull String mail) throws Exception {
 		Account account = repo.findByEmail(mail)
 				.orElseThrow(() -> new UnauthorizedAccessException("No tienes permiso para acceder a este recurso"));
-		return new ResponseDTO<>("Tu cuenta existe",
-				new CheckUserDTO(
+		return new CheckUserDTO(
 						account.getEmail(),
 						account.getUser().getName(),
-						account.getRole().toString())
-				);
+						account.getRole().toString());
 	}
 
 }

@@ -1,8 +1,11 @@
 package co.edu.uniquindio.unieventos.services;
 
+import java.util.List;
+
 import co.edu.uniquindio.unieventos.dto.calendar.CalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.CreateCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.EditCalendarDTO;
+import co.edu.uniquindio.unieventos.dto.calendar.OnlyCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.SearchPageDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import jakarta.validation.Valid;
@@ -18,9 +21,9 @@ public interface CalendarService {
 
 	void deleteCalendar(@NotNull String id);
 
-	ResponseDTO<?> searchDalendars(@Valid SearchPageDTO dto);
+	List<OnlyCalendarDTO> searchDalendars(@Valid SearchPageDTO dto);
 
-	ResponseDTO<?> findOnlyCalendar(@Valid String id) throws Exception;
+	OnlyCalendarDTO findOnlyCalendar(@Valid String id) throws Exception;
 
 	ResponseDTO<?> findCalendar(@Valid String id) throws Exception;
 

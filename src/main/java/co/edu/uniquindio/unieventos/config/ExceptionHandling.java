@@ -14,6 +14,7 @@ import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.InvalidFieldsDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.MultiErrorDTO;
 import co.edu.uniquindio.unieventos.exceptions.BadRequestException;
+import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DelayException;
 import co.edu.uniquindio.unieventos.exceptions.DeletedAccountException;
@@ -97,6 +98,11 @@ public class ExceptionHandling {
 
 	@ExceptionHandler(ConstraintViolationException.class)
 	public ResponseEntity<?> handlerException(ConstraintViolationException e) {
+		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
+	}
+
+	@ExceptionHandler(CartEmptyException.class)
+	public ResponseEntity<?> handlerException(CartEmptyException e) {
 		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
 	}
 

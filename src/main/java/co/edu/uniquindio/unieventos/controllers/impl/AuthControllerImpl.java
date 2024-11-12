@@ -16,8 +16,10 @@ import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.AuthController;
 import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
+import co.edu.uniquindio.unieventos.dto.auth.CheckUserDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.auth.LoginResponseDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.model.documents.Account;
@@ -41,56 +43,65 @@ public class AuthControllerImpl implements AuthController {
 
 	@Override
 	@PostMapping("/create")
-	public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountDTO account) throws Exception {
+	public ResponseEntity<ResponseDTO<Account>> createAccount(@Valid @RequestBody CreateAccountDTO account) throws Exception {
 		return ResponseEntity.status(HttpStatus.CREATED).body(
-				new ResponseDTO<Account>("Tu cuenta ha sido creada con éxito", 
+				new ResponseDTO<>("Tu cuenta ha sido creada con éxito", 
 						accountService.createAccount(account)));
 	}
 
 	@Override
 	@PostMapping("/password/recovery")
-	public ResponseEntity<?> sendRecuperationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
-		return ResponseEntity.ok(accountService.sendRecuperationCode(email));
+	public ResponseEntity<ResponseDTO<Void>> sendRecuperationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
+		accountService.sendRecuperationCode(email);
+		return ResponseEntity.ok(new ResponseDTO<>("Se ha enviado el correo de recuperación de contraseña exitosamente", null));
 	}
 
 	@Override
 	@PostMapping("/activation/send")
-	public ResponseEntity<?> resendActivationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
-		return ResponseEntity.ok(accountService.resendActivationCode(email));
+	public ResponseEntity<ResponseDTO<Void>> resendActivationCode(@Valid @Email @RequestParam("email") String email) throws Exception {
+		accountService.resendActivationCode(email);
+		ResponseDTO<Void> dto = new ResponseDTO<>("Se mandó un código de activación a tu cuenta exitosamente",
+				null);
+		return ResponseEntity.ok(dto);
 	}
 
 	@Override
 	@PostMapping("/activation/activate")
-	public ResponseEntity<?> activateAccount(@Valid @RequestBody ActivateAccountDTO dto) throws Exception {
-		return ResponseEntity.ok(accountService.activateAccount(dto));
+	public ResponseEntity<ResponseDTO<Void>> activateAccount(@Valid @RequestBody ActivateAccountDTO dto) throws Exception {
+		accountService.activateAccount(dto);
+		ResponseDTO<Void> responseDTO = new ResponseDTO<>("Tu cuenta ha sido activada exitosamente", null);
+		return ResponseEntity.ok(responseDTO);
 	}
 
 	@Override
 	@PostMapping("/password/change")
-	public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordDTO change) throws Exception {
-		return ResponseEntity.ok(accountService.changePassword(change));
+	public ResponseEntity<ResponseDTO<Void>> changePassword(@Valid @RequestBody ChangePasswordDTO change) throws Exception {
+		accountService.changePassword(change);
+		return ResponseEntity.ok(new ResponseDTO<>("Tu contraseña ha sido cambiada exitosamente", null));
 	}
-	
+
 	@Override
 	@PostMapping("/login")
-	public ResponseEntity<?> login(@Valid @RequestBody LoginDTO loginDTO) throws Exception {
-		return ResponseEntity.ok(accountService.login(loginDTO));
+	public ResponseEntity<ResponseDTO<LoginResponseDTO>> login(@Valid @RequestBody LoginDTO loginDTO) throws Exception {
+		LoginResponseDTO login = accountService.login(loginDTO);
+		return ResponseEntity.ok(new ResponseDTO<>("Se pudo iniciar sesión", login));
 	}
+
 	@Override
 	@PostMapping("/checkUser")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> checkUser(HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<CheckUserDTO>> checkUser(HttpServletRequest request) throws Exception {
 		String mail = authUtils.getMail(request);
-		System.out.println("mail: " + mail);
 		if (mail == null)
 			throw new UnauthorizedAccessException("No tienes permiso para acceder a este recurso");
-		return ResponseEntity.ok(accountService.checkUser(mail));
+		return ResponseEntity.ok(new ResponseDTO<>("Tu cuenta existe", accountService.checkUser(mail)));
 	}
 
 	@Override
 	@GetMapping("/validateMail")
-	public ResponseEntity<?> validateMail(@Valid @Email @NotBlank @RequestParam("mail") String email) throws Exception {
-		return ResponseEntity.ok(accountService.validateMail(email));
+	public ResponseEntity<ResponseDTO<Void>> validateMail(@Valid @Email @NotBlank @RequestParam("mail") String email) throws Exception {
+		accountService.validateMail(email);
+		return ResponseEntity.ok(new ResponseDTO<>("Tu cuenta si está activa", null));
 	}
 
 }

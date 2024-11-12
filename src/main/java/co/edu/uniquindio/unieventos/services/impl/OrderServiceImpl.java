@@ -77,6 +77,11 @@ public class OrderServiceImpl implements OrderService {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
+		double newPriceFactor = 1;
+		if (ordenGuardada.getCouponId() != null) {
+			Coupon coupon = couponRepository.findById(ordenGuardada.getCouponId().toString()).orElse(null);
+			newPriceFactor = coupon == null ? 1 : (100d - coupon.getDiscount()) / 100d;
+		}
 		if (!ordenGuardada.getClientId().toString().equals(userId)) 
 			throw new UnauthorizedAccessException("La orden no está a tu nombre");
 			
@@ -115,7 +120,7 @@ public class OrderServiceImpl implements OrderService {
 			PreferenceItemRequest itemRequest = PreferenceItemRequest.builder().title(event.getName())
 					.title(String.format("%s - %s", item.getCalendarId().toString(), event.getName()))
 					.pictureUrl(event.getEventImage()).categoryId(event.getType().name()).quantity(item.getQuantity())
-					.currencyId("COP").unitPrice(BigDecimal.valueOf(locality.getPrice())).build();
+					.currencyId("COP").unitPrice(BigDecimal.valueOf(locality.getPrice() * newPriceFactor)).build();
 
 			itemsPasarela.add(itemRequest);
 		}
@@ -291,7 +296,7 @@ public class OrderServiceImpl implements OrderService {
 			subtotal = subtotal * (100 - coupon.getDiscount());
 		Order order = Order.builder()
 				.clientId(new ObjectId(cart.getUserId()))
-				.couponId(new ObjectId(coupon.getId()))
+				.couponId(coupon != null ? new ObjectId(coupon.getId()) : null)
 				.timestamp(LocalDateTime.now())
 				.items(items)
 				.status(OrderStatus.CREATED)

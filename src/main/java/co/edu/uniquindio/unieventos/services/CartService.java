@@ -13,19 +13,19 @@ import jakarta.validation.constraints.NotBlank;
 
 public interface CartService {
 
-	ResponseDTO<CartDTO> createCart(String id) throws Exception;
+	CartDTO createCart(String id) throws Exception;
 
-	ResponseDTO<CartDTO> getCartById(String id, String idCart) throws Exception;
+	CartDTO getCartById(String id, String idCart) throws Exception;
 	
-	ResponseDTO<List<CartDTO>> getCartsByUserId(String userId);
+	List<CartDTO> getCartsByUserId(String userId);
 	
 	void deleteCartById(String id, String idCart) throws Exception;
 
-	ResponseDTO<Boolean> saveItemToCart(AddItemCartDTO dto, String id) throws Exception;
+	void saveItemToCart(AddItemCartDTO dto, String id) throws Exception;
 
-	ResponseDTO<Boolean> deleteItemFromCart(RemoveItemCartDTO dto, String userId) throws Exception;
+	void deleteItemFromCart(RemoveItemCartDTO dto, String userId) throws Exception;
 
-	ResponseDTO<CartDTO> clearCart(String id, String userId) throws Exception;
+	void clearCart(String id, String userId) throws Exception;
 
-	ResponseDTO<Boolean> validateExistsItem(ExistsCartItemDTO dto, @NotBlank @ValidObjectId @Valid String userId) throws Exception;
+	boolean validateExistsItem(ExistsCartItemDTO dto, @NotBlank @ValidObjectId @Valid String userId) throws Exception;
 }

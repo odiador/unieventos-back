@@ -228,7 +228,7 @@ public class EventServiceImpl implements EventService {
 
 
 	@Override
-	public ResponseDTO<List<EventWCalIdDTO>> findEvents(SearchEventDTO dto) {
+	public List<EventWCalIdDTO> findEvents(SearchEventDTO dto) {
 		LocalDate date = dto.date() != null ? LocalDate.parse(dto.date()) : null;
 		List<Calendar> calendars = calendarRepositoryCustom.findCalendarsWithFilteredEvents(
 				dto.id(),
@@ -244,11 +244,10 @@ public class EventServiceImpl implements EventService {
 			for (Event event : calendar.getEvents())
 				events.add(new SimpleEntry<>(id, event));
 		}
-		return new ResponseDTO<List<EventWCalIdDTO>>("Se encontraron eventos:", 
-				events.stream()
+		return events.stream()
 					.sorted((o1, o2) -> o1.getKey().compareTo(o2.getKey()))
 					.map(mappers.getEventCalIdToDTOMapper())
-					.collect(Collectors.toList()));
+					.collect(Collectors.toList());
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package co.edu.uniquindio.unieventos.controllers.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,8 @@ import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
+import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.services.OrderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -43,7 +46,8 @@ public class OrderControllerImpl implements OrderController {
 	@Override
 	@PostMapping("/pay")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<?> doPayment(@RequestBody @Valid DoPaymentDTO dto, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<MercadoPagoURLDTO>> doPayment(@RequestBody @Valid DoPaymentDTO dto,
+			HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleClient(request);
 		String userId = authUtils.getId(request);
@@ -54,7 +58,7 @@ public class OrderControllerImpl implements OrderController {
 
 	@Override
 	@PostMapping("/pay/notification")
-	public ResponseEntity<?> receiveMercadoPagoNotification(@RequestBody Map<String, Object> request) throws Exception {
+	public ResponseEntity<String> receiveMercadoPagoNotification(@RequestBody Map<String, Object> request) throws Exception {
 		orderService.receiveMercadoPagoNotification(request);
 		return ResponseEntity.ok("R");
 	}
@@ -62,23 +66,26 @@ public class OrderControllerImpl implements OrderController {
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
 	@GetMapping("/getPurchaseHistory")
-	public ResponseEntity<?> getPurchaseHistory(HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<List<PurchaseDTO>>> getPurchaseHistory(HttpServletRequest request) throws Exception {
 		authUtils.validateRoleMinClient(request);
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
-		return ResponseEntity.ok(orderService.getPurchaseHistory(mail));
+		return ResponseEntity.ok(new ResponseDTO<List<PurchaseDTO>>(
+				"Historial encontrado",
+				orderService.getPurchaseHistory(mail)));
 	}
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/create")
-	public ResponseEntity<?> createOrder(@RequestParam("id") @NotNull String id, @RequestParam("coupon") String coupon,
+	public ResponseEntity<ResponseDTO<OrderDTO>> createOrder(@RequestParam("id") @NotNull String id, @RequestParam("coupon") String coupon,
 			HttpServletRequest request) throws Exception {
 		authUtils.validateRoleMinClient(request);
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
-		return ResponseEntity.ok(orderService.createOrder(new CreateOrderDTO(id, mail, coupon)));
+		return ResponseEntity.ok(new ResponseDTO<OrderDTO>("Orden creada con éxito",
+				orderService.createOrder(new CreateOrderDTO(id, mail, coupon))));
 	}
 
 }

@@ -16,6 +16,8 @@ public interface CouponRepository extends MongoRepository<Coupon, String> {
 
 	Optional<Coupon> findByCode(String code);
 
+	Optional<Coupon> findByIdAndStatus(String id, CouponStatus status);
+
 	/**
 	 * Busca los que tengan un estado específico y no estén vencidos
 	 * 

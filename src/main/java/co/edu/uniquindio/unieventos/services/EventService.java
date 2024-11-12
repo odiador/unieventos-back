@@ -17,7 +17,7 @@ public interface EventService {
 
 	EventDTO editEvent(@Valid EditEventDTO dto) throws Exception;
 
-	ResponseDTO<List<EventWCalIdDTO>> findEvents(@Valid SearchEventDTO dto) throws Exception;
+	List<EventWCalIdDTO> findEvents(@Valid SearchEventDTO dto) throws Exception;
 
 	void deleteEvent(@Valid FindEventDTO dto) throws Exception;
 

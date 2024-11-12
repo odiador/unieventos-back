@@ -2,8 +2,10 @@ package co.edu.uniquindio.unieventos.services;
 
 import co.edu.uniquindio.unieventos.dto.auth.ActivateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.ChangePasswordDTO;
+import co.edu.uniquindio.unieventos.dto.auth.CheckUserDTO;
 import co.edu.uniquindio.unieventos.dto.auth.CreateAccountDTO;
 import co.edu.uniquindio.unieventos.dto.auth.LoginDTO;
+import co.edu.uniquindio.unieventos.dto.auth.LoginResponseDTO;
 import co.edu.uniquindio.unieventos.dto.client.EditUserDataDTO;
 import co.edu.uniquindio.unieventos.dto.client.UserDataDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -21,24 +23,24 @@ public interface AccountService {
 
 	Account createAccount(@Valid CreateAccountDTO account) throws DocumentFoundException, MailSendingException;
 
-	ResponseDTO<?> editAccount(String mail, @Valid EditUserDataDTO account) throws Exception;
+	UserDataDTO editAccount(String mail, @Valid EditUserDataDTO account) throws Exception;
 
-	ResponseDTO<?> deleteAccount(@Valid LoginDTO dto) throws Exception;
+	void deleteAccount(@Valid LoginDTO dto) throws Exception;
 
 	UserDataDTO getAccountInfo(String id) throws DocumentNotFoundException;
 
-	ResponseDTO<?> sendRecuperationCode(String email) throws Exception;
+	void sendRecuperationCode(String email) throws Exception;
 
-	ResponseDTO<?> resendActivationCode(String email) throws Exception;
+	void resendActivationCode(String email) throws Exception;
 
-	ResponseDTO<?> activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException, ConflictException;
+	void activateAccount(@Valid ActivateAccountDTO dto) throws DocumentNotFoundException, InvalidCodeException, ConflictException;
 
-	ResponseDTO<?> changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
+	void changePassword(@Valid ChangePasswordDTO change) throws DocumentNotFoundException, InvalidCodeException;
 
-	ResponseDTO<?> login(@Valid LoginDTO loginDTO) throws Exception;
+	LoginResponseDTO login(@Valid LoginDTO loginDTO) throws Exception;
 
-	ResponseDTO<?> validateMail(@Valid @Email String email) throws Exception;
+	void validateMail(@Valid @Email String email) throws Exception;
 
-	ResponseDTO<?> checkUser(@Email @NotNull String mail) throws Exception;
+	CheckUserDTO checkUser(@Email @NotNull String mail) throws Exception;
 
 }
