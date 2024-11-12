@@ -10,7 +10,6 @@ public class OrderTest {
 	@Test
 	public void test() throws Exception {
 		try {
-			new DotEnvConfig().loadEnv();
 			MercadoPagoProps properties = new MercadoPagoProps();
 			properties.setAccesstoken(System.getProperty("custom.payments.accesstoken"));
 			properties.setNgrokurl(System.getProperty("custom.payments.ngrokurl"));
