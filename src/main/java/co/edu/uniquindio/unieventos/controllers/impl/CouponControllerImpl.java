@@ -5,14 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.CouponController;
+import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponCodeDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -36,7 +37,7 @@ public class CouponControllerImpl implements CouponController {
 	@Override
 	@PostMapping("/create")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<ResponseDTO<CouponCodeDTO>> createCoupon(@RequestBody @Valid CouponDTO dto, HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<CouponCodeDTO>> createCoupon(@Valid @RequestBody CouponDTO dto, HttpServletRequest request) throws Exception {
 		authUtils.verifyRoleAdmin(request);
 		String code = service.saveCoupon(dto);
 		return ResponseEntity.status(HttpStatus.CREATED)
@@ -44,21 +45,32 @@ public class CouponControllerImpl implements CouponController {
 	}
 
 	@Override
-	@GetMapping("/findId")
+	@GetMapping("/findId/{id}")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<ResponseDTO<Coupon>> findById(@RequestParam("id") @NotNull String id, HttpServletRequest request) throws Exception {
-		authUtils.verifyMinRoleClient(request);
+	public ResponseEntity<ResponseDTO<Coupon>> findById(@PathVariable("id") String id,
+			HttpServletRequest request) throws Exception {
+		authUtils.verifyRoleAdmin(request);
 		ResponseDTO<Coupon> dto = new ResponseDTO<>("Cupón encontrado", service.getCouponById(id));
 		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 
 	@Override
-	@GetMapping("/find")
+	@GetMapping("/find/{code}")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<ResponseDTO<Coupon>> findByCode(@RequestParam("code") @NotNull String code, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<Coupon>> findByCode(@PathVariable("code") String code, HttpServletRequest request)
+			throws Exception {
+		authUtils.verifyRoleAdmin(request);
+		ResponseDTO<Coupon> dto = new ResponseDTO<>("Cupón encontrado", service.getCouponByCode(code));
+		return ResponseEntity.status(HttpStatus.OK).body(dto);
+	}
+
+	@Override
+	@GetMapping("/apply/{code}")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<ResponseDTO<AppliedCouponDTO>> applyByCode(@PathVariable("code") @NotNull String code, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyMinRoleClient(request);
-		ResponseDTO<Coupon> dto = new ResponseDTO<>("Cupón encontrado", service.getCouponByCode(code));
+		ResponseDTO<AppliedCouponDTO> dto = new ResponseDTO<>("Cupón encontrado", service.applyCouponByCode(code));
 		return ResponseEntity.status(HttpStatus.OK).body(dto);
 	}
 

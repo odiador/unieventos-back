@@ -23,6 +23,7 @@ import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.config.Mappers;
 import co.edu.uniquindio.unieventos.config.MercadoPagoProps;
+import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.BiErrorStringDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
@@ -38,7 +39,6 @@ import co.edu.uniquindio.unieventos.model.documents.Cart;
 import co.edu.uniquindio.unieventos.model.documents.Coupon;
 import co.edu.uniquindio.unieventos.model.documents.Order;
 import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
-import co.edu.uniquindio.unieventos.model.enums.CouponType;
 import co.edu.uniquindio.unieventos.model.enums.OrderStatus;
 import co.edu.uniquindio.unieventos.model.vo.CartDetail;
 import co.edu.uniquindio.unieventos.model.vo.Event;
@@ -49,6 +49,7 @@ import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
 import co.edu.uniquindio.unieventos.repositories.CartRepository;
 import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.repositories.OrderRepository;
+import co.edu.uniquindio.unieventos.services.CouponService;
 import co.edu.uniquindio.unieventos.services.OrderService;
 
 @Service
@@ -66,6 +67,8 @@ public class OrderServiceImpl implements OrderService {
 	private AccountRepository accountRepository;
 	@Autowired
 	private OrderRepository orderRepository;
+	@Autowired
+	private CouponService couponService;
 
 	@Autowired
 	private MercadoPagoProps customProperties;
@@ -206,97 +209,64 @@ public class OrderServiceImpl implements OrderService {
 		if(cart.isEmpty())
 			throw new CartEmptyException("El carrito no puede estar vacío");
 
-		Coupon coupon = null;
+		double newPriceFactor = 1;
+		AppliedCouponDTO coupon = null;
 		if (dto.couponCode() != null) {
-			coupon = couponRepository.findByCode(dto.couponCode())
-					.orElseThrow(() -> new DocumentNotFoundException("Cupón no encontrado"));
-
-			if (coupon.getStatus() == CouponStatus.DELETED)
-				throw new DocumentNotFoundException("Cupón no encontrado");
-			if (coupon.getStatus() == CouponStatus.UNAVAILABLE)
-				throw new DocumentNotFoundException("Cupón no disponible");
-			if(!coupon.getExpiryDate().isAfter(LocalDateTime.now()))
-				throw new DocumentNotFoundException("Tu cupón ya está vencido");
+			coupon = couponService.applyCouponByCode(dto.couponCode());
+			newPriceFactor = (100d - coupon.discount()) / 100d;
 		}
 		List<BiErrorStringDTO> errors = new ArrayList<>();
 		List<OrderDetail> items = new ArrayList<>();
 
 		float subtotal = 0f; 
 		List<CartDetail> cartItems = cart.getItems();
-		if (coupon != null && coupon.isForSpecialEvent()) {
-			final Coupon aux = coupon;
-			Calendar calendar = calendarRepository.findById(coupon.getCalendarId())
-					.orElseThrow(() -> new DocumentNotFoundException("El calendario no se pudo encontrar"));
 
-			Event eventFound = calendar.getEvents().stream().filter(event -> event.getName().equals(aux.getEventName()))
-					.findFirst().orElseThrow(() -> new DocumentNotFoundException("El evento no se pudo encontrar"));
-
-			for (CartDetail detail : cartItems) {
-				if (!calendar.getId().equals(detail.getCalendarId())) {
-					errors.add(new BiErrorStringDTO("calendar", calendar.getName()));
-					continue;
-				}
-
-				if (!detail.getEventName().equals(eventFound.getName())) {
-					errors.add(new BiErrorStringDTO("event", detail.getEventName()));
-					continue;
-				}
-
-				Locality locality = eventFound.getLocalities().stream()
-						.filter(loc -> loc.getName().equals(detail.getLocalityName())).findFirst().orElse(null);
-
-				if (locality == null) {
-					errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
-					continue;
-				}
-
-				OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
-				orderDetail.setPrice(locality.getPrice());
-				subtotal += locality.getPrice();
-				items.add(orderDetail);
+		for (CartDetail detail : cartItems) {
+			Calendar calendar = calendarRepository.findById(detail.getCalendarId()).orElse(null);
+			if (calendar == null) {
+				errors.add(new BiErrorStringDTO("calendar", detail.getCalendarId()));
+				continue;
 			}
 
-			if (!errors.isEmpty())
-				throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
+			Event eventFound = calendar.getEvents().stream()
+					.filter(event -> event.getName().equals(detail.getEventName())).findFirst().orElse(null);
 
-		} else {
-			for (CartDetail detail : cart.getItems()) {
-				Calendar calendar = calendarRepository.findById(detail.getCalendarId())
-						.orElseThrow(() -> new DocumentNotFoundException("El calendario no se pudo encontrar"));
-
-				Event eventFound = calendar.getEvents().stream()
-						.filter(event -> event.getName().equals(detail.getEventName()))
-						.findFirst()
-						.orElse(null);
-
-				if (eventFound == null) {
-					errors.add(new BiErrorStringDTO("event", detail.getEventName()));
-					continue;
-				}
-				Locality locality = eventFound.getLocalities().stream()
-						.filter(loc -> loc.getName().equals(detail.getLocalityName()))
-						.findFirst()
-						.orElse(null);
-
-				if (locality == null) {
-					errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
-					continue;
-				}
-				OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
-				orderDetail.setPrice(locality.getPrice());
-				subtotal += locality.getPrice();
-				items.add(orderDetail);
+			if (eventFound == null) {
+				errors.add(new BiErrorStringDTO("event", detail.getEventName()));
+				continue;
 			}
-			if (!errors.isEmpty())
-				throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
+			Locality locality = eventFound.getLocalities().stream()
+					.filter(loc -> loc.getName().equals(detail.getLocalityName())).findFirst().orElse(null);
+
+			if (locality == null) {
+				errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
+				continue;
+			}
+			OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
+			float price = locality.getPrice();
+			if (coupon != null) {
+				if (coupon.forSpecialEvent()) {
+					if (coupon.calendarId().equals(detail.getCalendarId())
+							&& detail.getEventName().equals(coupon.eventName())) {
+						price *= newPriceFactor;
+					}
+				} else {
+					price *= newPriceFactor;
+				}
+			}
+			orderDetail.setPrice(price);
+			subtotal += price;
+			items.add(orderDetail);
 		}
-		if (coupon.getType() == CouponType.UNIQUE)
-			coupon.setStatus(CouponStatus.UNAVAILABLE);
+		if (!errors.isEmpty())
+			throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
+		if (coupon.isUnique())
+			couponService.changeCouponStatus(dto.couponCode(), CouponStatus.UNAVAILABLE);
 		if (coupon != null)
-			subtotal = subtotal * (100 - coupon.getDiscount());
+			subtotal = subtotal * (100 - coupon.discount());
 		Order order = Order.builder()
 				.clientId(new ObjectId(cart.getUserId()))
-				.couponId(coupon != null ? new ObjectId(coupon.getId()) : null)
+				.couponId(coupon != null ? new ObjectId(coupon.id()) : null)
 				.timestamp(LocalDateTime.now())
 				.items(items)
 				.status(OrderStatus.CREATED)

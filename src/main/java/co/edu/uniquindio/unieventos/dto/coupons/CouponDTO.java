@@ -22,8 +22,8 @@ public record CouponDTO(
         @ValidDateTimeFutureFormat
 		String expiryDate,
 
-		@ValidEnum(enumClass = CouponStatus.class, message = "Ingresa un status valido")
 		@NotNull
+		@ValidEnum(enumClass = CouponStatus.class, message = "Ingresa un status valido")
 		String status,
 
 		@ValidEnum(enumClass = CouponType.class, message = "Ingresa un tipo valido")

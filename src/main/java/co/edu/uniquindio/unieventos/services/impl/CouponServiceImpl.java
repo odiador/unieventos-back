@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponInfoDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.GetCouponsDTO;
@@ -20,6 +21,7 @@ import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.services.CouponService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
 @Service
 public class CouponServiceImpl implements CouponService {
@@ -83,6 +85,27 @@ public class CouponServiceImpl implements CouponService {
 					c.getName()
 					);
 		};
+	}
+
+	@Override
+	public AppliedCouponDTO applyCouponByCode(@NotNull String code) throws Exception {
+		Coupon coupon = couponRepository.findByCode(code).orElseThrow(() -> new DocumentNotFoundException("Cupón no encontrado"));
+		if (coupon.getStatus() == CouponStatus.DELETED)
+			throw new DocumentNotFoundException("Cupón no encontrado");
+		if (coupon.getStatus() == CouponStatus.UNAVAILABLE)
+			throw new DocumentNotFoundException("Cupón no disponible");
+		if(!coupon.getExpiryDate().isAfter(LocalDateTime.now()))
+			throw new DocumentNotFoundException("Tu cupón ya está vencido");
+		return new AppliedCouponDTO(coupon.getId(), code, coupon.getDiscount(), coupon.isForSpecialEvent(),
+				coupon.getCalendarId(), coupon.getEventName(), coupon.getType() == CouponType.UNIQUE);
+	}
+
+	@Override
+	public void changeCouponStatus(String code, CouponStatus cs) throws DocumentNotFoundException {
+		Coupon coupon = couponRepository.findByCode(code).orElseThrow(() -> new DocumentNotFoundException("Cupón no encontrado"));
+		coupon.setStatus(cs);
+		couponRepository.save(coupon);
+		
 	}
 
 }
