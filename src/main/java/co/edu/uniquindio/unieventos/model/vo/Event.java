@@ -36,4 +36,10 @@ public class Event {
 				return locality;
 		return null;
 	}
+
+	public void updateLocality(Locality locality, int i) {
+		if (i >= 0 && i < localities.size()) {
+			localities.set(i, locality);
+		}
+	}
 }

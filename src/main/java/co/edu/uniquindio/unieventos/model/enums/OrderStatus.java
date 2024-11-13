@@ -1,8 +1,8 @@
 package co.edu.uniquindio.unieventos.model.enums;
 
 /**
- * CREATED, PENDING, PAID, DELETED
+ * CREATED, PAID, CANCELED
  */
 public enum OrderStatus {
-	CREATED, PENDING, PAID, DELETED
+	CREATED, PAID, CANCELED
 }

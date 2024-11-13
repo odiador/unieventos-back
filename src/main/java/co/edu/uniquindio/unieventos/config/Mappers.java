@@ -125,7 +125,7 @@ public class Mappers {
 			items = e.getItems().stream()
 			.map(this.orderDetailToDto)
 			.collect(Collectors.toList());
-		return new OrderDTO(e.getId(), e.getClientId(), e.getTimestamp().toString(), e.getPayment(), items, e.getStatus().name(), e.getTotal(), e.getCouponId());
+		return new OrderDTO(e.getId(), e.getClientId(), e.getTimestamp().toString(), e.getPayment(), e.getInitPoint(), items, e.getStatus().name(), e.getTotal(), e.getCouponId());
 	};
 	
 	private final Function<CartDetail, OrderDetail> cartToOrderMapper = c -> {

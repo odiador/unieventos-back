@@ -27,6 +27,7 @@ public class Order {
     @Id
     private String id;
     private ObjectId clientId;
+    private String initPoint;
     private LocalDateTime timestamp;
     private Payment payment;
     private List<OrderDetail> items;

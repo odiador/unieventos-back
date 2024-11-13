@@ -2,6 +2,7 @@ package co.edu.uniquindio.unieventos.services.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,11 @@ import co.edu.uniquindio.unieventos.dto.exceptions.BiErrorStringDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
+import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
+import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
@@ -60,8 +63,6 @@ public class OrderServiceImpl implements OrderService {
 	@Autowired
 	private CalendarRepository calendarRepository;
 	@Autowired
-	private OrderRepository repo;
-	@Autowired
 	private CartRepository cartRepository;
 	@Autowired
 	private CouponRepository couponRepository;
@@ -78,18 +79,21 @@ public class OrderServiceImpl implements OrderService {
 	private Mappers mappers;
 
 	@Override
-	public Preference realizarPago(String idOrden, String userId, String origin) throws Exception {
+	public MercadoPagoURLDTO realizarPago(String idOrden, String userId, String origin) throws Exception {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
-		double newPriceFactor = 1;
-		if (ordenGuardada.getCouponId() != null) {
-			Coupon coupon = couponRepository.findById(ordenGuardada.getCouponId().toString()).orElse(null);
-			newPriceFactor = coupon == null ? 1 : (100d - coupon.getDiscount()) / 100d;
+		if (ordenGuardada.getInitPoint() != null) {
+			return new MercadoPagoURLDTO(ordenGuardada.getInitPoint());
 		}
 		if (!ordenGuardada.getClientId().toString().equals(userId))
 			throw new UnauthorizedAccessException("La orden no está a tu nombre");
-
+		float newPriceFactor = 1;
+		Coupon coupon = null;
+		if (ordenGuardada.getCouponId() != null) {
+			coupon = couponRepository.findById(ordenGuardada.getCouponId().toString()).orElse(null);
+			newPriceFactor = coupon == null ? 1 : (100f - coupon.getDiscount()) / 100f;
+		}
 		List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
 		List<String> errors = new ArrayList<String>();
 		// Recorrer los items de la orden y crea los ítems de la pasarela
@@ -120,11 +124,19 @@ public class OrderServiceImpl implements OrderService {
 				locality = optional.get();
 
 			}
+			float price = locality.getPrice() * (coupon == null ? 1
+					: (coupon.isForSpecialEvent()
+							? (coupon.getCalendarId().equals(calendar.getId())
+									&& coupon.getEventId().equals(event.getId()) ? newPriceFactor : 1)
+							: newPriceFactor));
 			// Crear el item de la pasarela
 			PreferenceItemRequest itemRequest = PreferenceItemRequest.builder().title(event.getName())
-					.title(String.format("%s - %s", item.getCalendarId().toString(), event.getName()))
-					.pictureUrl(event.getEventImage()).categoryId(event.getType().name()).quantity(item.getQuantity())
-					.currencyId("COP").unitPrice(BigDecimal.valueOf(locality.getPrice() * newPriceFactor)).build();
+					.title(String.format("%s - %s", calendar.getName(), event.getName()))
+					.pictureUrl(event.getEventImage())
+					.categoryId(event.getType().name())
+					.quantity(item.getQuantity())
+					.currencyId("COP")
+					.unitPrice(BigDecimal.valueOf(price)).build();
 
 			itemsPasarela.add(itemRequest);
 		}
@@ -138,20 +150,22 @@ public class OrderServiceImpl implements OrderService {
 				.failure(String.format("%s/home/orders/%s/status", origin, idOrden))
 				.pending(String.format("%s/home/orders/%s/status", origin, idOrden)).build();
 
-		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de
-		// retorno
+		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de retorno
 		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
-		PreferenceRequest preferenceRequest = PreferenceRequest.builder().backUrls(backUrls).items(itemsPasarela)
-				.metadata(Map.of("id_orden", ordenGuardada.getId())).notificationUrl(format).build();
+		PreferenceRequest preferenceRequest = PreferenceRequest.builder()
+				.backUrls(backUrls)
+				.expires(false)
+				.items(itemsPasarela)
+				.metadata(Map.of("id_orden", ordenGuardada.getId()))
+				.notificationUrl(format)
+				.build();
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
 		Preference preference = client.create(preferenceRequest);
-
 		// Guardar el código de la pasarela en la orden
-		ordenGuardada.setId(preference.getId());
-		repo.save(ordenGuardada);
-
-		return preference;
+		ordenGuardada.setInitPoint(preference.getInitPoint());
+		orderRepository.save(ordenGuardada);
+		return new MercadoPagoURLDTO(ordenGuardada.getInitPoint());
 	}
 
 	@Override
@@ -180,8 +194,31 @@ public class OrderServiceImpl implements OrderService {
 				// Se obtiene la orden guardada en la base de datos y se le asigna el pago
 				Order orden = getOrder(idOrden);
 				co.edu.uniquindio.unieventos.model.vo.Payment pago = createPayment(payment);
+				List<Calendar> editedCalendars = new ArrayList<Calendar>();
+				for (OrderDetail detail : orden.getItems()) {
+					Calendar calendar = calendarRepository.findById(detail.getCalendarId()).orElse(null);
+					if (calendar == null)
+						throw new ConflictException(String.format("El calendario \"%s\" no fue encontrado", detail.getCalendarId()));
+					Event event = findEvent(detail.getEventId(), calendar);
+					if (event == null)
+						throw new ConflictException(String.format("El evento \"%s\" no fue encontrado", detail.getEventId()));
+					List<Locality> localities = event.getLocalities();
+					SimpleEntry<Locality, Integer> localityWIndex = getLocality(detail.getLocalityId(), localities);
+					if (localityWIndex == null)
+						throw new ConflictException(String.format("La localidad \"%s\" no fue encontrada", detail.getLocalityId()));
+					Locality locality = localityWIndex.getKey();
+					if (locality.getFreeTickets() < detail.getQuantity())
+						throw new ConflictException(String.format(
+								"La localidad \"%s\" no tiene suficientes tickets disponibles", locality.getName()));
+					locality.setTicketsSold(locality.getTicketsSold() + detail.getQuantity());
+					event.updateLocality(locality, localityWIndex.getValue());
+					calendar.updateEvent(event);
+					editedCalendars.add(calendar);
+				}
+				calendarRepository.saveAll(editedCalendars);
+				orden.setStatus(OrderStatus.PAID);
 				orden.setPayment(pago);
-				repo.save(orden);
+				orderRepository.save(orden);
 			}
 
 		} catch (Exception e) {
@@ -189,9 +226,28 @@ public class OrderServiceImpl implements OrderService {
 		}
 	}
 
+	private SimpleEntry<Locality, Integer> getLocality(String id, List<Locality> localities) {
+		for (int i = 0; i < localities.size(); i++) {
+			Locality locality = localities.get(i);
+			if (locality.getId().equals(id))
+				return new SimpleEntry<Locality, Integer>(locality, i);
+		}
+		return null;
+	}
+
+	private Event findEvent(String id, Calendar calendar) {
+		List<Event> events = calendar.getEvents();
+		for (int i = 0; i < events.size(); i++) {
+			Event event = events.get(i);
+			if (event.getId().equals(id))
+				return event;
+		}
+		return null;
+	}
+
 	@Override
 	public Order getOrder(String idOrden) throws DocumentNotFoundException {
-		return repo.findById(idOrden).orElseThrow(() -> new DocumentNotFoundException("La orden no fue encontrada"));
+		return orderRepository.findById(idOrden).orElseThrow(() -> new DocumentNotFoundException("La orden no fue encontrada"));
 	}
 
 	@Override
@@ -212,7 +268,6 @@ public class OrderServiceImpl implements OrderService {
 			coupon = couponService.applyCouponByCode(dto.couponCode());
 			newPriceFactor = (100f - coupon.discount()) / 100f;
 		}
-		System.out.println(newPriceFactor);
 		List<BiErrorStringDTO> errors = new ArrayList<>();
 		List<OrderDetail> items = new ArrayList<>();
 
@@ -243,7 +298,6 @@ public class OrderServiceImpl implements OrderService {
 			OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
 			float price = locality.getPrice();
 			if (coupon != null) {
-				System.out.print("before:" + price);
 				if (coupon.forSpecialEvent()) {
 					if (coupon.calendarId().equals(detail.getCalendarId())
 							&& detail.getEventId().equals(coupon.eventId())) {
@@ -252,7 +306,6 @@ public class OrderServiceImpl implements OrderService {
 				} else {
 					price *= newPriceFactor;
 				}
-				System.out.println(" - after:" + price + " (multi:" + newPriceFactor + ")");
 			}
 			orderDetail.setPrice(price);
 			subtotal += price * detail.getQuantity();
@@ -268,7 +321,7 @@ public class OrderServiceImpl implements OrderService {
 				.couponId(coupon != null ? new ObjectId(coupon.id()) : null).timestamp(LocalDateTime.now()).items(items)
 				.status(OrderStatus.CREATED).total(subtotal).build();
 
-		return mappers.getOrderMapper().apply(repo.save(order));
+		return mappers.getOrderMapper().apply(orderRepository.save(order));
 	}
 
 	private co.edu.uniquindio.unieventos.model.vo.Payment createPayment(Payment payment) {
@@ -331,6 +384,7 @@ public class OrderServiceImpl implements OrderService {
 				order.getId(),
 				order.getClientId(),
 				order.getTimestamp().toString(),
+				order.getInitPoint(),
 				order.getPayment(), 
 				orderDetails,
 				order.getStatus().toString(),

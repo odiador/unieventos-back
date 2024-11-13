@@ -7,6 +7,7 @@ import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
@@ -15,7 +16,7 @@ import co.edu.uniquindio.unieventos.model.documents.Order;
 
 public interface OrderService {
 
-	Preference realizarPago(String idOrden, String userId, String origin) throws Exception;
+	MercadoPagoURLDTO realizarPago(String idOrden, String userId, String origin) throws Exception;
 
 	void receiveMercadoPagoNotification(Map<String, Object> request) throws PaymentException;
 

@@ -11,6 +11,7 @@ public record FindOrderDTO(
 	    String id,
 	    ObjectId clientId,
 	    String timestamp,
+	    String initPoint,
 	    Payment payment,
 	    List<FindOrderDetailDTO> items,
 	    String status,

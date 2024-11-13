@@ -12,6 +12,7 @@ public record OrderDTO(
 	    ObjectId clientId,
 	    String timestamp,
 	    Payment payment,
+	    String initPoint,
 	    List<OrderDetailDTO> items,
 	    String status,
 	    float total,

@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mercadopago.resources.preference.Preference;
-
 import co.edu.uniquindio.unieventos.config.AuthUtils;
 import co.edu.uniquindio.unieventos.controllers.OrderController;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
@@ -52,9 +50,9 @@ public class OrderControllerImpl implements OrderController {
 			throws Exception {
 		authUtils.verifyRoleClient(request);
 		String userId = authUtils.getId(request);
-		Preference pref = orderService.realizarPago(dto.id(), userId, request.getAttribute("origin").toString());
+		MercadoPagoURLDTO responseDTO = orderService.realizarPago(dto.id(), userId, request.getAttribute("origin").toString());
 		return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseDTO<>(
-				"Proceso de pago iniciado con MercadoPago", new MercadoPagoURLDTO(pref.getInitPoint())));
+				"Proceso de pago iniciado con MercadoPago", responseDTO));
 	}
 
 	@Override
