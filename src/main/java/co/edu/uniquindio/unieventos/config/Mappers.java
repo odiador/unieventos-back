@@ -48,6 +48,7 @@ public class Mappers {
 	 */
 	private final Function<Event, EventDTO> eventMapper = event -> {
 		return new EventDTO(
+					event.getId(),
 					event.getName(),
 					event.getEventImage(),
 					event.getLocalityImage(),
@@ -60,6 +61,7 @@ public class Mappers {
 						: event.getLocalities()
 							.stream()
 							.map(locality -> new ReturnLocalityDTO(
+									locality.getId(),
 									locality.getName(),
 									locality.getPrice(),
 									locality.getTicketsSold(),
@@ -76,6 +78,7 @@ public class Mappers {
 		Event event = entry.getValue();
 		return new EventWCalIdDTO(
 				entry.getKey(),
+				event.getId(),
 				event.getName(),
 				event.getEventImage(),
 				event.getLocalityImage(),
@@ -88,6 +91,7 @@ public class Mappers {
 						: event.getLocalities()
 						.stream()
 						.map(locality -> new ReturnLocalityDTO(
+								locality.getId(),
 								locality.getName(),
 								locality.getPrice(),
 								locality.getTicketsSold(),
@@ -127,16 +131,16 @@ public class Mappers {
 	private final Function<CartDetail, OrderDetail> cartToOrderMapper = c -> {
 		return OrderDetail.builder()
 				.calendarId(c.getCalendarId())
-				.eventName(c.getEventName())
+				.eventId(c.getEventId())
 				.quantity(c.getQuantity())
-				.localityName(c.getLocalityName())
+				.localityId(c.getLocalityId())
 				.build();
 	};
 	
 	private final Function<AddItemCartDTO, CartDetail> cartDetailMapper = (detail)-> {
 		return CartDetail.builder()
-				.eventName(detail.eventName())
-				.localityName(detail.localityName())
+				.eventId(detail.eventId())
+				.localityId(detail.localityId())
 				.quantity(detail.quantity())
 				.build();
 	};
@@ -144,8 +148,8 @@ public class Mappers {
 	private final Function<CartDetail, OrderDetail> mapper = e -> {
 		return OrderDetail.builder()
 				.calendarId(e.getCalendarId())
-				.eventName(e.getEventName())
-				.localityName(e.getLocalityName())
+				.eventId(e.getEventId())
+				.localityId(e.getLocalityId())
 				.quantity(e.getQuantity())
 				.build();
 	};
@@ -176,7 +180,7 @@ public class Mappers {
 	};
 
 	private final Function<OrderDetail, OrderDetailDTO> orderDetailToDto = e -> {
-		return new OrderDetailDTO(e.getCalendarId(), e.getEventName(), e.getLocalityName(), e.getPrice(),
+		return new OrderDetailDTO(e.getCalendarId(), e.getEventId(), e.getLocalityId(), e.getPrice(),
 				e.getQuantity());
 	};
 

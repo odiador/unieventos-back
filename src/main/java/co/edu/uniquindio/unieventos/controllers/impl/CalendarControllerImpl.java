@@ -30,12 +30,11 @@ import jakarta.validation.constraints.NotNull;
 @RequestMapping("/api/calendars")
 @CrossOrigin
 public class CalendarControllerImpl implements CalendarController {
-	
+
 	@Autowired
 	private CalendarService calendarService;
 	@Autowired
 	private AuthUtils authUtils;
-	
 
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
@@ -52,7 +51,7 @@ public class CalendarControllerImpl implements CalendarController {
 		authUtils.verifyRoleAdmin(request);
 		return ResponseEntity.ok(new ResponseDTO<>("Calendario editado con éxito", calendarService.editCalendar(dto)));
 	}
-	
+
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/delete")
@@ -61,7 +60,7 @@ public class CalendarControllerImpl implements CalendarController {
 		calendarService.deleteCalendar(id);
 		return ResponseEntity.ok(new ResponseDTO<>("Calendario eliminado con éxito", null));
 	}
-	
+
 	@Override
 	@PostMapping("/findByPage")
 	public ResponseEntity<ResponseDTO<List<OnlyCalendarDTO>>> searchCalendars(@Valid @RequestBody SearchPageDTO dto) throws Exception {

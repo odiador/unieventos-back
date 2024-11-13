@@ -6,6 +6,7 @@ import co.edu.uniquindio.unieventos.model.enums.EventStatus;
 import co.edu.uniquindio.unieventos.model.enums.EventType;
 
 public record EventDTO(
+		String id,
 		String name,
 		String eventImage,
 		String localityImage,

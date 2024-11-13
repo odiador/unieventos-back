@@ -7,6 +7,7 @@ import co.edu.uniquindio.unieventos.model.enums.EventType;
 
 public record EventWCalIdDTO(
 		String calendarId,
+		String id,
 		String name,
 		String eventImage,
 		String localityImage,

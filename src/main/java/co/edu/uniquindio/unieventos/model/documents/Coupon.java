@@ -30,10 +30,10 @@ public class Coupon {
 	private CouponType type;
 	private String name;
 	private String calendarId;
-	private String eventName;
+	private String eventId;
 
 	public boolean isForSpecialEvent() {
-		return calendarId != null && eventName != null;
+		return calendarId != null && eventId != null;
 	}
 
 }

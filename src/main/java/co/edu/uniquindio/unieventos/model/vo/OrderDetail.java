@@ -14,8 +14,8 @@ import lombok.Setter;
 public class OrderDetail {
 
     private String calendarId;
-    private String eventName;
-    private String localityName;
+    private String eventId;
+    private String localityId;
     private float price;
     private int quantity;
 

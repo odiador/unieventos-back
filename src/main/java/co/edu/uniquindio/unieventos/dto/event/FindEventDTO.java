@@ -13,6 +13,6 @@ public record FindEventDTO(
 		String idCalendar,
 		@NotBlank
 		@Length(min = 0, max = 100)
-		String name
+		String idEvent
 		
 ) {}

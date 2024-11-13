@@ -6,6 +6,6 @@ public record AppliedCouponDTO(
 		float discount,
 		boolean forSpecialEvent,
 		String calendarId,
-		String eventName,
+		String eventId,
 		boolean isUnique
 ) {}

@@ -29,11 +29,9 @@ public class Calendar {
 		events.add(event);
 	}
 
-	public void updateEvent(Event event, String newName) {
+	public void updateEvent(Event event) {
 		for (int i = 0; i < events.size(); i++)
-			if (event.getName().equals(events.get(i).getName())) {
-				if (newName != null)
-					event.setName(newName);
+			if (event.getId().equals(events.get(i).getId())) {
 				events.set(i, event);
 				return;
 			}

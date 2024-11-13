@@ -97,7 +97,7 @@ public class CouponServiceImpl implements CouponService {
 		if(!coupon.getExpiryDate().isAfter(LocalDateTime.now()))
 			throw new DocumentNotFoundException("Tu cupón ya está vencido");
 		return new AppliedCouponDTO(coupon.getId(), code, coupon.getDiscount(), coupon.isForSpecialEvent(),
-				coupon.getCalendarId(), coupon.getEventName(), coupon.getType() == CouponType.UNIQUE);
+				coupon.getCalendarId(), coupon.getEventId(), coupon.getType() == CouponType.UNIQUE);
 	}
 
 	@Override

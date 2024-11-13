@@ -40,7 +40,8 @@ public class Cart {
 	}
 
 	public void removeItemIndex(int index) {
-		items.remove(index);
+		if (index >= 0 && index < items.size())
+			items.remove(index);
 	}
 
 }

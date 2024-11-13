@@ -20,6 +20,7 @@ import lombok.ToString;
 @ToString
 public class EditEventDTO {
 	private String idCalendar;
+	private String idEvent;
 
 	@Length(min = 0, max = 100)
 	private String name;

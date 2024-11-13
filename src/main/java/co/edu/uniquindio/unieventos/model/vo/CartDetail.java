@@ -15,8 +15,8 @@ public class CartDetail {
 
     private int quantity;
     private String calendarId;
-    private String eventName;
-    private String localityName;
+    private String eventId;
+    private String localityId;
 
 
 }

@@ -98,10 +98,10 @@ public class OrderServiceImpl implements OrderService {
 			Event event;
 			{
 				Optional<Event> optional = calendar.getEvents().stream()
-						.filter(e -> e.getName().equals(item.getEventName())).findFirst();
+						.filter(e -> e.getId().equals(item.getEventId())).findFirst();
 				if (optional.isEmpty()) {
 					errors.add(
-							String.format("El evento \"%s\" no fue encontrado en el calendario", item.getEventName()));
+							String.format("El evento \"%s\" no fue encontrado en el calendario", item.getEventId()));
 					continue;
 				}
 				event = optional.get();
@@ -110,10 +110,10 @@ public class OrderServiceImpl implements OrderService {
 			{
 
 				Optional<Locality> optional = event.getLocalities().stream()
-						.filter(l -> l.getName().equals(item.getLocalityName())).findFirst();
+						.filter(l -> l.getId().equals(item.getLocalityId())).findFirst();
 				if (optional.isEmpty()) {
 					errors.add(String.format("La localidad \"%s\" no fue encontrada en el evento %s",
-							item.getLocalityName(), item.getEventName()));
+							item.getLocalityId(), item.getEventId()));
 					continue;
 				}
 				locality = optional.get();
@@ -229,17 +229,17 @@ public class OrderServiceImpl implements OrderService {
 			}
 
 			Event eventFound = calendar.getEvents().stream()
-					.filter(event -> event.getName().equals(detail.getEventName())).findFirst().orElse(null);
+					.filter(event -> event.getId().equals(detail.getEventId())).findFirst().orElse(null);
 
 			if (eventFound == null) {
-				errors.add(new BiErrorStringDTO("event", detail.getEventName()));
+				errors.add(new BiErrorStringDTO("event", detail.getEventId()));
 				continue;
 			}
 			Locality locality = eventFound.getLocalities().stream()
-					.filter(loc -> loc.getName().equals(detail.getLocalityName())).findFirst().orElse(null);
+					.filter(loc -> loc.getId().equals(detail.getLocalityId())).findFirst().orElse(null);
 
 			if (locality == null) {
-				errors.add(new BiErrorStringDTO("locality", detail.getLocalityName()));
+				errors.add(new BiErrorStringDTO("locality", detail.getLocalityId()));
 				continue;
 			}
 			OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
@@ -247,7 +247,7 @@ public class OrderServiceImpl implements OrderService {
 			if (coupon != null) {
 				if (coupon.forSpecialEvent()) {
 					if (coupon.calendarId().equals(detail.getCalendarId())
-							&& detail.getEventName().equals(coupon.eventName())) {
+							&& detail.getEventId().equals(coupon.eventId())) {
 						price *= newPriceFactor;
 					}
 				} else {

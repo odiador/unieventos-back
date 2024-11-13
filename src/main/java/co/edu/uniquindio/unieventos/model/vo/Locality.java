@@ -15,6 +15,7 @@ import lombok.Setter;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Locality {
 	@EqualsAndHashCode.Include
+	private String id;
 	private String name;
 	private float price;
 	private int ticketsSold;

@@ -87,7 +87,7 @@ public class CartServiceImpl implements CartService {
 
 		Event event = null;
 		for (Event e : calendar.getEvents()) {
-			if (e.getName().equals(item.getEventName())) {
+			if (e.getId().equals(item.getEventId())) {
 				event = e;
 				break;
 			}
@@ -96,7 +96,7 @@ public class CartServiceImpl implements CartService {
 			return null;
 		Locality locality = null;
 		for (Locality loc : event.getLocalities()) {
-			if (loc.getName().equals(item.getLocalityName())) {
+			if (loc.getId().equals(item.getLocalityId())) {
 				locality = loc;
 				break;
 			}
@@ -107,8 +107,10 @@ public class CartServiceImpl implements CartService {
 		return new CartDetailDTO(
 				item.getQuantity(),
 				item.getCalendarId(),
-				item.getEventName(),
-				item.getLocalityName(),
+				item.getEventId(),
+				event.getName(),
+				item.getLocalityId(),
+				locality.getName(),
 				locality.getPrice(),
 				calendar.getName(),
 				event.getEventImage(),
@@ -146,8 +148,8 @@ public class CartServiceImpl implements CartService {
 		for (int i = 0; i < items.size(); i++) {
 			CartDetail detail = items.get(i);
 			if(detail.getCalendarId().equals(dto.calendarId())&&
-					detail.getEventName().equals(dto.eventName())&&
-					detail.getLocalityName().equals(dto.localityName())) {
+					detail.getEventId().equals(dto.eventId())&&
+					detail.getLocalityId().equals(dto.localityId())) {
 				found = detail;
 				index = i;
 				break;
@@ -156,8 +158,8 @@ public class CartServiceImpl implements CartService {
 		}
 		Calendar calendar = calendarRepository.findById(dto.calendarId())
 				.orElseThrow(() -> new DocumentNotFoundException("El calendario no fue encontrado"));
-		Event event = findEvent(dto.eventName(), calendar.getEvents());
-		Locality locality = findLocality(dto.localityName(), event.getLocalities());
+		Event event = findEvent(dto.eventId(), calendar.getEvents());
+		Locality locality = findLocality(dto.localityId(), event.getLocalities());
 		int freeTickets = locality.getFreeTickets();
 		if (freeTickets < dto.quantity()) {
 			throw new ConflictException("La localidad no tiene suficientes entradas");
@@ -168,8 +170,8 @@ public class CartServiceImpl implements CartService {
 		} else {
 			CartDetail detail = CartDetail.builder()
 					.calendarId(dto.calendarId())
-					.eventName(dto.eventName())
-					.localityName(dto.localityName())
+					.eventId(dto.eventId())
+					.localityId(dto.localityId())
 					.quantity(dto.quantity()).build();
 			cart.addItem(detail);
 		}
@@ -185,15 +187,15 @@ public class CartServiceImpl implements CartService {
 
 		Calendar calendar = calendarRepository.findById(dto.calendarId())
 				.orElseThrow(() -> new DocumentNotFoundException("El calendario no fue encontrado"));
-		Event event = findEvent(dto.eventName(), calendar.getEvents());
-		findLocality(dto.localityName(), event.getLocalities());
+		Event event = findEvent(dto.eventId(), calendar.getEvents());
+		findLocality(dto.localityId(), event.getLocalities());
 
 		Cart cart = cartRepository.findByIdAndUserId(dto.cartId(), userId)
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito no fue encontrado"));
 		List<CartDetail> items = cart.getItems();
 		for (CartDetail item : items) {
-			if (item.getCalendarId().equals(dto.calendarId()) && item.getEventName().equals(dto.eventName())
-					&& item.getLocalityName().equals(dto.localityName())) {
+			if (item.getCalendarId().equals(dto.calendarId()) && item.getEventId().equals(dto.eventId())
+					&& item.getLocalityId().equals(dto.localityId())) {
 				return true;
 
 			}
@@ -201,18 +203,18 @@ public class CartServiceImpl implements CartService {
 		return false;
 	}
 
-	private Locality findLocality(String name, List<Locality> localities) throws DocumentNotFoundException {
+	private Locality findLocality(String id, List<Locality> localities) throws DocumentNotFoundException {
 		for (Locality locality : localities) {
-			if(locality.getName().equals(name)) {
+			if(locality.getId().equals(id)) {
 				return locality;
 			}
 		}
 		throw new DocumentNotFoundException("La localidad no fue encontrada");
 	}
 
-	private Event findEvent(String name,List<Event> events) throws DocumentNotFoundException {
+	private Event findEvent(String id, List<Event> events) throws DocumentNotFoundException {
 		for (Event e : events) {
-			if (e.getName().equals(name))
+			if (e.getId().equals(id))
 				return e;
 		}
 		throw new DocumentNotFoundException("Evento no encontrado en el calendario");
@@ -226,16 +228,18 @@ public class CartServiceImpl implements CartService {
 		for (int i = 0; i < items.size(); i++) {
 			CartDetail detail = items.get(i);
 			if(detail.getCalendarId().equals(dto.calendarId()) &&
-					detail.getEventName().equals(dto.eventName()) &&
-					detail.getLocalityName().equals(dto.localityName())) {
+					detail.getEventId().equals(dto.eventId()) &&
+					detail.getLocalityId().equals(dto.localityId())) {
 				index = i;
 				break;
 			}
 		}
+		if (index == -1)
+			throw new DocumentNotFoundException("El item no fue encontrado");
 		Calendar calendar = calendarRepository.findById(dto.calendarId())
 				.orElseThrow(() -> new DocumentNotFoundException("El calendario no fue encontrado"));
-		Event event = findEvent(dto.eventName(), calendar.getEvents());
-		findLocality(dto.localityName(), event.getLocalities());
+		Event event = findEvent(dto.eventId(), calendar.getEvents());
+		findLocality(dto.localityId(), event.getLocalities());
 		cart.removeItemIndex(index);
 		cartRepository.save(cart);
 	}
