@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.model.vo;
 
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -15,6 +17,7 @@ import lombok.Setter;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Locality {
 	@EqualsAndHashCode.Include
+	@Field("id")
 	private String id;
 	private String name;
 	private float price;
