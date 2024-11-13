@@ -6,8 +6,10 @@ import java.util.Map;
 import com.mercadopago.resources.preference.Preference;
 
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
+import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
 import co.edu.uniquindio.unieventos.model.documents.Order;
 
@@ -19,8 +21,12 @@ public interface OrderService {
 
 	Order getOrder(String idOrden) throws Exception;
 
+	FindOrderDTO getOrderDTO(String idOrden, String mail) throws Exception;
+
 	List<PurchaseDTO> getPurchaseHistory(String mail) throws Exception;
 
 	OrderDTO createOrder(CreateOrderDTO dto) throws Exception;
+
+	List<FindOrderDTO> getOrdersDTO(String mail) throws DocumentNotFoundException;
 
 }

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
+import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
@@ -25,5 +26,10 @@ public interface OrderController {
 
 	ResponseEntity<ResponseDTO<OrderDTO>> createOrder(@NotNull String id, String coupon, HttpServletRequest request)
 			throws Exception;
+	
+	ResponseEntity<ResponseDTO<FindOrderDTO>> findOrder(String id, HttpServletRequest request)
+			throws Exception;
+
+	ResponseEntity<ResponseDTO<List<FindOrderDTO>>> listOrders(HttpServletRequest request) throws Exception;
 
 }

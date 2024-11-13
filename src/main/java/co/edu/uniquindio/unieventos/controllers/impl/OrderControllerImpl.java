@@ -21,6 +21,7 @@ import co.edu.uniquindio.unieventos.controllers.OrderController;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
+import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
@@ -87,6 +88,31 @@ public class OrderControllerImpl implements OrderController {
 			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
 		return ResponseEntity.ok(new ResponseDTO<OrderDTO>("Orden creada con éxito",
 				orderService.createOrder(new CreateOrderDTO(id, mail, coupon))));
+	}
+
+	@Override
+	@SecurityRequirement(name = "bearerAuth")
+	@GetMapping("/find")
+	public ResponseEntity<ResponseDTO<FindOrderDTO>> findOrder(@RequestParam("id") String id, HttpServletRequest request)
+			throws Exception {
+		String mail = authUtils.getMail(request);
+		if (mail == null)
+			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
+		ResponseDTO<FindOrderDTO> responseDTO = new ResponseDTO<>("Orden obtenida con éxito", orderService.getOrderDTO(id, mail));
+		return ResponseEntity.ok(responseDTO);
+	}
+
+	@Override
+	@SecurityRequirement(name = "bearerAuth")
+	@GetMapping("/findAll")
+	public ResponseEntity<ResponseDTO<List<FindOrderDTO>>> listOrders(HttpServletRequest request)
+			throws Exception {
+		String mail = authUtils.getMail(request);
+		if (mail == null)
+			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
+		List<FindOrderDTO> orders = orderService.getOrdersDTO(mail);
+		ResponseDTO<List<FindOrderDTO>> response = new ResponseDTO<>("Ordenes obtenidas con éxito", orders);
+		return ResponseEntity.ok(response);
 	}
 
 }

@@ -12,4 +12,5 @@ import co.edu.uniquindio.unieventos.model.enums.OrderStatus;
 @Repository
 public interface OrderRepository extends MongoRepository<Order, String> {
 	List<Order> findByClientIdAndStatus(ObjectId clientId, OrderStatus status);
+	List<Order> findByClientId(ObjectId clientId);
 }

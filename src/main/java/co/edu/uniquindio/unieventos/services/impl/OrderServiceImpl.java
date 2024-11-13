@@ -26,6 +26,8 @@ import co.edu.uniquindio.unieventos.config.MercadoPagoProps;
 import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.exceptions.BiErrorStringDTO;
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
+import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
@@ -85,9 +87,9 @@ public class OrderServiceImpl implements OrderService {
 			Coupon coupon = couponRepository.findById(ordenGuardada.getCouponId().toString()).orElse(null);
 			newPriceFactor = coupon == null ? 1 : (100d - coupon.getDiscount()) / 100d;
 		}
-		if (!ordenGuardada.getClientId().toString().equals(userId)) 
+		if (!ordenGuardada.getClientId().toString().equals(userId))
 			throw new UnauthorizedAccessException("La orden no está a tu nombre");
-			
+
 		List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
 		List<String> errors = new ArrayList<String>();
 		// Recorrer los items de la orden y crea los ítems de la pasarela
@@ -100,8 +102,7 @@ public class OrderServiceImpl implements OrderService {
 				Optional<Event> optional = calendar.getEvents().stream()
 						.filter(e -> e.getId().equals(item.getEventId())).findFirst();
 				if (optional.isEmpty()) {
-					errors.add(
-							String.format("El evento \"%s\" no fue encontrado en el calendario", item.getEventId()));
+					errors.add(String.format("El evento \"%s\" no fue encontrado en el calendario", item.getEventId()));
 					continue;
 				}
 				event = optional.get();
@@ -132,20 +133,16 @@ public class OrderServiceImpl implements OrderService {
 		MercadoPagoConfig.setAccessToken(customProperties.getAccesstoken());
 
 		// Configurar las urls de retorno de la pasarela (Frontend)
-		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest
-				.builder()
+		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
 				.success(String.format("%s/home/orders/%s/status", origin, idOrden))
 				.failure(String.format("%s/home/orders/%s/status", origin, idOrden))
-				.pending(String.format("%s/home/orders/%s/status", origin, idOrden))
-				.build();
+				.pending(String.format("%s/home/orders/%s/status", origin, idOrden)).build();
 
 		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de
 		// retorno
 		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
-		PreferenceRequest preferenceRequest = PreferenceRequest.builder()
-				.backUrls(backUrls).items(itemsPasarela)
-				.metadata(Map.of("id_orden", ordenGuardada.getId()))
-				.notificationUrl(format).build();
+		PreferenceRequest preferenceRequest = PreferenceRequest.builder().backUrls(backUrls).items(itemsPasarela)
+				.metadata(Map.of("id_orden", ordenGuardada.getId())).notificationUrl(format).build();
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
 		Preference preference = client.create(preferenceRequest);
@@ -203,22 +200,23 @@ public class OrderServiceImpl implements OrderService {
 				.orElseThrow(() -> new DocumentNotFoundException("El carrito con ese ID no fue encontrado"));
 		Account account = accountRepository.findById(cart.getUserId())
 				.orElseThrow(() -> new DocumentNotFoundException("El usuario en el carrito no fue encontrado"));
-		if(!account.getEmail().equals(dto.email()))
+		if (!account.getEmail().equals(dto.email()))
 			throw new UnauthorizedAccessException("Tu cuenta no coincide con la cuenta del carrito");
 
-		if(cart.isEmpty())
+		if (cart.isEmpty())
 			throw new CartEmptyException("El carrito no puede estar vacío");
 
-		double newPriceFactor = 1;
+		float newPriceFactor = 1;
 		AppliedCouponDTO coupon = null;
 		if (dto.couponCode() != null) {
 			coupon = couponService.applyCouponByCode(dto.couponCode());
-			newPriceFactor = (100d - coupon.discount()) / 100d;
+			newPriceFactor = (100f - coupon.discount()) / 100f;
 		}
+		System.out.println(newPriceFactor);
 		List<BiErrorStringDTO> errors = new ArrayList<>();
 		List<OrderDetail> items = new ArrayList<>();
 
-		float subtotal = 0f; 
+		float subtotal = 0f;
 		List<CartDetail> cartItems = cart.getItems();
 
 		for (CartDetail detail : cartItems) {
@@ -228,8 +226,8 @@ public class OrderServiceImpl implements OrderService {
 				continue;
 			}
 
-			Event eventFound = calendar.getEvents().stream()
-					.filter(event -> event.getId().equals(detail.getEventId())).findFirst().orElse(null);
+			Event eventFound = calendar.getEvents().stream().filter(event -> event.getId().equals(detail.getEventId()))
+					.findFirst().orElse(null);
 
 			if (eventFound == null) {
 				errors.add(new BiErrorStringDTO("event", detail.getEventId()));
@@ -245,6 +243,7 @@ public class OrderServiceImpl implements OrderService {
 			OrderDetail orderDetail = mappers.getCartToOrderMapper().apply(detail);
 			float price = locality.getPrice();
 			if (coupon != null) {
+				System.out.print("before:" + price);
 				if (coupon.forSpecialEvent()) {
 					if (coupon.calendarId().equals(detail.getCalendarId())
 							&& detail.getEventId().equals(coupon.eventId())) {
@@ -253,26 +252,22 @@ public class OrderServiceImpl implements OrderService {
 				} else {
 					price *= newPriceFactor;
 				}
+				System.out.println(" - after:" + price + " (multi:" + newPriceFactor + ")");
 			}
 			orderDetail.setPrice(price);
-			subtotal += price;
+			subtotal += price * detail.getQuantity();
 			items.add(orderDetail);
 		}
 		if (!errors.isEmpty())
 			throw new MultiErrorException("Errores en los detalles del carrito", errors, 400);
-		if (coupon.isUnique())
+		if (coupon != null && coupon.isUnique()) {
 			couponService.changeCouponStatus(dto.couponCode(), CouponStatus.UNAVAILABLE);
-		if (coupon != null)
-			subtotal = subtotal * (100 - coupon.discount());
-		Order order = Order.builder()
-				.clientId(new ObjectId(cart.getUserId()))
-				.couponId(coupon != null ? new ObjectId(coupon.id()) : null)
-				.timestamp(LocalDateTime.now())
-				.items(items)
-				.status(OrderStatus.CREATED)
-				.total(subtotal)
-				.build();
-		
+		}
+
+		Order order = Order.builder().clientId(new ObjectId(cart.getUserId()))
+				.couponId(coupon != null ? new ObjectId(coupon.id()) : null).timestamp(LocalDateTime.now()).items(items)
+				.status(OrderStatus.CREATED).total(subtotal).build();
+
 		return mappers.getOrderMapper().apply(repo.save(order));
 	}
 
@@ -292,10 +287,82 @@ public class OrderServiceImpl implements OrderService {
 	@Override
 	public List<PurchaseDTO> getPurchaseHistory(String mail) throws Exception {
 		String id = accountRepository.findByEmail(mail)
-				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada"))
-				.getId();
+				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada")).getId();
 		List<Order> findByClientId = orderRepository.findByClientIdAndStatus(new ObjectId(id), OrderStatus.PAID);
 		return findByClientId.stream().map(mappers.getOrderToPurchaseMapper()).collect(Collectors.toList());
+	}
+
+	@Override
+	public FindOrderDTO getOrderDTO(String idOrden, String mail) throws Exception {
+		Account account = accountRepository.findByEmail(mail)
+				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no fue encontrada"));
+		Order order = getOrder(idOrden);
+		if (!account.getId().equals(order.getClientId().toString()))
+			new DocumentNotFoundException("No puedes ver esta orden");
+		return mapOrderToFindOrderDTO(order);
+	}
+
+	private FindOrderDTO mapOrderToFindOrderDTO(Order order) {
+		List<FindOrderDetailDTO> orderDetails = new ArrayList<FindOrderDetailDTO>();
+		for (OrderDetail orderDetail : order.getItems()) {
+			Calendar calendar = calendarRepository.findById(orderDetail.getCalendarId()).orElse(null);
+			if (calendar == null)
+				continue;
+			String id = orderDetail.getLocalityId();
+			Event event = findEvent(calendar, orderDetail.getEventId());
+			if (event == null)
+				continue;
+			Locality locality = findLocality(id, event);
+			if (locality == null)
+				continue;
+
+			orderDetails.add(new FindOrderDetailDTO(
+					orderDetail.getCalendarId(),
+					orderDetail.getEventId(),
+					orderDetail.getLocalityId(),
+					calendar.getName(),
+					event.getName(),
+					locality.getName(),
+					event.getEventImage(),
+					orderDetail.getPrice(),
+					orderDetail.getQuantity()));
+		}
+		FindOrderDTO orderDto = new FindOrderDTO(
+				order.getId(),
+				order.getClientId(),
+				order.getTimestamp().toString(),
+				order.getPayment(), 
+				orderDetails,
+				order.getStatus().toString(),
+				order.getTotal(),
+				order.getCouponId());
+		return orderDto;
+	}
+
+	private Locality findLocality(String id, Event event) {
+		for (Locality l : event.getLocalities()) {
+			if (l.getId().equals(id)) {
+				return l;
+			}
+		}
+		return null;
+	}
+
+	private Event findEvent(Calendar calendar, String id) {
+		for (Event e : calendar.getEvents()) {
+			if (e.getId().equals(id)) {
+				return e;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public List<FindOrderDTO> getOrdersDTO(String mail) throws DocumentNotFoundException {
+		Account account = accountRepository.findByEmail(mail)
+				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no fue encontrada"));
+		return orderRepository.findByClientId(new ObjectId(account.getId())).stream()
+				.map(order -> mapOrderToFindOrderDTO(order)).toList();
 	}
 
 }
