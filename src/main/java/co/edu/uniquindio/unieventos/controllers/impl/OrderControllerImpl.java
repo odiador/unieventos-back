@@ -78,8 +78,9 @@ public class OrderControllerImpl implements OrderController {
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
 	@PostMapping("/create")
-	public ResponseEntity<ResponseDTO<OrderDTO>> createOrder(@RequestParam("id") @NotNull String id, @RequestParam("coupon") String coupon,
-			HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<OrderDTO>> createOrder(@RequestParam("id") @NotNull String id,
+			@RequestParam(name = "coupon", required = false) String coupon, HttpServletRequest request)
+			throws Exception {
 		authUtils.validateRoleMinClient(request);
 		String mail = authUtils.getMail(request);
 		if (mail == null)

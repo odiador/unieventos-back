@@ -103,7 +103,7 @@ public class ExceptionHandling {
 
 	@ExceptionHandler(CartEmptyException.class)
 	public ResponseEntity<?> handlerException(CartEmptyException e) {
-		return ResponseEntity.status(400).body(new ErrorDTO(400, e.getMessage()));
+		return ResponseEntity.status(406).body(new ErrorDTO(406, e.getMessage()));
 	}
 
 	@ExceptionHandler(BadRequestException.class)
