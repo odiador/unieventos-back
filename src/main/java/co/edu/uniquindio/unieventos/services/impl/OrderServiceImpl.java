@@ -146,9 +146,9 @@ public class OrderServiceImpl implements OrderService {
 
 		// Configurar las urls de retorno de la pasarela (Frontend)
 		PreferenceBackUrlsRequest backUrls = PreferenceBackUrlsRequest.builder()
-				.success(String.format("%s/home/orders/%s/status", origin, idOrden))
-				.failure(String.format("%s/home/orders/%s/status", origin, idOrden))
-				.pending(String.format("%s/home/orders/%s/status", origin, idOrden)).build();
+				.success(String.format("%s/home/orders/%s", origin, idOrden))
+				.failure(String.format("%s/home/orders/%s", origin, idOrden))
+				.pending(String.format("%s/home/orders/%s", origin, idOrden)).build();
 
 		// Construir la preferencia de la pasarela con los ítems, metadatos y urls de retorno
 		String format = String.format("%s/api/orders/pay/notification", customProperties.getNgrokurl());
