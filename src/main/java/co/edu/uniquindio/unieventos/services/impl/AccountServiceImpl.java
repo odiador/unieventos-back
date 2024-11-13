@@ -104,6 +104,7 @@ public class AccountServiceImpl implements AccountService {
 		UserData ud = UserData.builder()
 				.cedula(dto.cedula())
 				.adress(dto.adress())
+				.city(dto.city())
 				.name(dto.name())
 				.phone(dto.phone())
 				.build();
