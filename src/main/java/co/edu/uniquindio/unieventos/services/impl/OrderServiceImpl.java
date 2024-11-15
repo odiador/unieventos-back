@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
-import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
@@ -338,11 +336,11 @@ public class OrderServiceImpl implements OrderService {
 	}
 
 	@Override
-	public List<PurchaseDTO> getPurchaseHistory(String mail) throws Exception {
-		String id = accountRepository.findByEmail(mail)
-				.orElseThrow(() -> new DocumentNotFoundException("La cuenta no fue encontrada")).getId();
-		List<Order> findByClientId = orderRepository.findByClientIdAndStatus(new ObjectId(id), OrderStatus.PAID);
-		return findByClientId.stream().map(mappers.getOrderToPurchaseMapper()).collect(Collectors.toList());
+	public List<FindOrderDTO> getPurchaseHistory(String mail) throws Exception {
+		Account account = accountRepository.findByEmail(mail)
+				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no fue encontrada"));
+		return orderRepository.findByClientIdAndStatus(new ObjectId(account.getId()), OrderStatus.PAID).stream()
+				.map(order -> mapOrderToFindOrderDTO(order)).toList();
 	}
 
 	@Override
@@ -415,7 +413,7 @@ public class OrderServiceImpl implements OrderService {
 	public List<FindOrderDTO> getOrdersDTO(String mail) throws DocumentNotFoundException {
 		Account account = accountRepository.findByEmail(mail)
 				.orElseThrow(() -> new DocumentNotFoundException("Tu cuenta no fue encontrada"));
-		return orderRepository.findByClientId(new ObjectId(account.getId())).stream()
+		return orderRepository.findByClientIdAndStatus(new ObjectId(account.getId()), OrderStatus.CREATED).stream()
 				.map(order -> mapOrderToFindOrderDTO(order)).toList();
 	}
 

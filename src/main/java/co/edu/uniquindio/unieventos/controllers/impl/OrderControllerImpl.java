@@ -22,7 +22,6 @@ import co.edu.uniquindio.unieventos.dto.orders.DoPaymentDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
-import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import co.edu.uniquindio.unieventos.services.OrderService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -65,12 +64,12 @@ public class OrderControllerImpl implements OrderController {
 	@Override
 	@SecurityRequirement(name = "bearerAuth")
 	@GetMapping("/getPurchaseHistory")
-	public ResponseEntity<ResponseDTO<List<PurchaseDTO>>> getPurchaseHistory(HttpServletRequest request) throws Exception {
+	public ResponseEntity<ResponseDTO<List<FindOrderDTO>>> getPurchaseHistory(HttpServletRequest request) throws Exception {
 		authUtils.validateRoleMinClient(request);
 		String mail = authUtils.getMail(request);
 		if (mail == null)
 			throw new UnauthorizedAccessException("No se pudo encontrar el correo");
-		return ResponseEntity.ok(new ResponseDTO<List<PurchaseDTO>>(
+		return ResponseEntity.ok(new ResponseDTO<List<FindOrderDTO>>(
 				"Historial encontrado",
 				orderService.getPurchaseHistory(mail)));
 	}

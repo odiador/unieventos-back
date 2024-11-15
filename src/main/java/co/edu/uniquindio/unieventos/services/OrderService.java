@@ -22,7 +22,7 @@ public interface OrderService {
 
 	FindOrderDTO getOrderDTO(String idOrden, String mail) throws Exception;
 
-	List<PurchaseDTO> getPurchaseHistory(String mail) throws Exception;
+	List<FindOrderDTO> getPurchaseHistory(String mail) throws Exception;
 
 	OrderDTO createOrder(CreateOrderDTO dto) throws Exception;
 
