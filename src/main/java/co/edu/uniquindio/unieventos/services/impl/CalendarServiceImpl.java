@@ -23,6 +23,7 @@ import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.model.documents.Calendar;
+import co.edu.uniquindio.unieventos.model.enums.EventStatus;
 import co.edu.uniquindio.unieventos.model.vo.Event;
 import co.edu.uniquindio.unieventos.model.vo.EventTag;
 import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
@@ -127,7 +128,10 @@ public class CalendarServiceImpl implements CalendarService {
 		List<Event> events = c.getEvents();
 		int eSize = events.size();
 		for (int i = 0; i < eSize; i++) {
-			List<EventTag> eachEventTags = events.get(i).getTags();
+			Event event = events.get(i);
+			if (event.getStatus() == EventStatus.DELETED)
+				continue;
+			List<EventTag> eachEventTags = event.getTags();
 			int tagSize = eachEventTags.size();
 			for (int j = 0; j < tagSize; j++) {
 				EventTag eventTag = eachEventTags.get(j);

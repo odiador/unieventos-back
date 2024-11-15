@@ -227,7 +227,7 @@ public class EventServiceImpl implements EventService {
 
 	@Override
 	public List<EventWCalIdDTO> findEvents(SearchEventDTO dto) {
-		LocalDate date = dto.date() != null ? LocalDate.parse(dto.date()) : null;
+		LocalDateTime date = dto.date() != null ? LocalDateTime.parse(dto.date()) : null;
 		List<Calendar> calendars = calendarRepositoryCustom.findCalendarsWithFilteredEvents(
 				dto.id(),
 				dto.name(),

@@ -1,6 +1,6 @@
 package co.edu.uniquindio.unieventos.repositories.impl;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,10 +24,9 @@ public class CalendarRepositoryCustomImpl implements CalendarRepositoryCustom {
 	private MongoTemplate mongoTemplate;
 
 	@Override
-	public List<Calendar> findCalendarsWithFilteredEvents(String id, String name, String city, LocalDate date,
+	public List<Calendar> findCalendarsWithFilteredEvents(String id, String name, String city, LocalDateTime date,
 			String tagName, int skip, int limit) {
 		List<Criteria> criteriaList = new ArrayList<>();
-
 		if (name != null) {
 			criteriaList.add(Criteria.where("events.name").regex(name, "i"));
 		}
@@ -38,7 +37,8 @@ public class CalendarRepositoryCustomImpl implements CalendarRepositoryCustom {
 			criteriaList.add(Criteria.where("events.city").regex(city, "i"));
 		}
 		if (date != null) {
-			criteriaList.add(Criteria.where("events.date").is(date));
+		    criteriaList.add(Criteria.where("events.startTime").lte(date)
+		                              .and("events.endTime").gte(date));
 		}
 		if (tagName != null) {
 			criteriaList.add(Criteria.where("events.tags").elemMatch(Criteria.where("name").regex(tagName, "i")));
@@ -46,10 +46,15 @@ public class CalendarRepositoryCustomImpl implements CalendarRepositoryCustom {
 
 		criteriaList.add(Criteria.where("events.status").ne("DELETED"));
 
-		Aggregation aggregation = Aggregation.newAggregation(Aggregation.unwind("events"),
-				Aggregation.match(new Criteria().andOperator(criteriaList.toArray(new Criteria[0]))),
-				Aggregation.group("_id").first("name").as("name").push("events").as("events"), Aggregation.skip(skip),
-				Aggregation.limit(limit));
+		Aggregation aggregation = Aggregation.newAggregation(
+			    Aggregation.unwind("events"),
+			    Aggregation.match(new Criteria().andOperator(criteriaList.toArray(new Criteria[0]))),
+				Aggregation.skip(skip * limit),
+			    Aggregation.limit(limit),
+			    Aggregation.group("_id")
+			        .first("name").as("name")
+			        .push("events").as("events")
+			);
 
 		AggregationResults<Calendar> results = mongoTemplate.aggregate(aggregation, "calendars", Calendar.class);
 
