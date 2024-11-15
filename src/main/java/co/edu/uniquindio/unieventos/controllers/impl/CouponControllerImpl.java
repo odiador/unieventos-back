@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.controllers.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import co.edu.uniquindio.unieventos.controllers.CouponController;
 import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponCodeDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
+import co.edu.uniquindio.unieventos.dto.coupons.CouponInfoDTO;
+import co.edu.uniquindio.unieventos.dto.coupons.GetCouponsDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.model.documents.Coupon;
 import co.edu.uniquindio.unieventos.services.CouponService;
@@ -44,6 +48,15 @@ public class CouponControllerImpl implements CouponController {
 				.body(new ResponseDTO<CouponCodeDTO>("Cupón creado con éxito", new CouponCodeDTO(code)));
 	}
 
+	@Override
+	@PostMapping("/findCoupons")
+	@SecurityRequirement(name = "bearerAuth")
+	public ResponseEntity<ResponseDTO<List<CouponInfoDTO>>> findCoupons(@Valid @RequestBody GetCouponsDTO dto, HttpServletRequest request) throws Exception {
+		authUtils.verifyRoleAdmin(request);
+		ResponseDTO<List<CouponInfoDTO>> responseDTO = new ResponseDTO<>("Cupones encontrados", service.getCouponsAdmin(dto));
+		return ResponseEntity.status(HttpStatus.OK).body(responseDTO);
+	}
+	
 	@Override
 	@GetMapping("/findId/{id}")
 	@SecurityRequirement(name = "bearerAuth")

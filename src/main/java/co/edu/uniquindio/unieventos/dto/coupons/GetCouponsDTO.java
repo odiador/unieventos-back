@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 public record GetCouponsDTO(
 
 		@Min(0) int page,
-		@Min(0) int size,
+		@Min(1) int size,
 		@ValidEnum(enumClass = CouponStatus.class, message = "Escribe un status válido")
 		String status
 ) {}

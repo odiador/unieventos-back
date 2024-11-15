@@ -1,10 +1,14 @@
 package co.edu.uniquindio.unieventos.controllers;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 
 import co.edu.uniquindio.unieventos.dto.coupons.AppliedCouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponCodeDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
+import co.edu.uniquindio.unieventos.dto.coupons.CouponInfoDTO;
+import co.edu.uniquindio.unieventos.dto.coupons.GetCouponsDTO;
 import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.model.documents.Coupon;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,5 +25,7 @@ public interface CouponController {
 	ResponseEntity<ResponseDTO<Coupon>> findByCode(String code, HttpServletRequest request) throws Exception;
 
 	ResponseEntity<ResponseDTO<AppliedCouponDTO>> applyByCode(@NotNull String code, HttpServletRequest request) throws Exception;
+
+	ResponseEntity<ResponseDTO<List<CouponInfoDTO>>> findCoupons(@Valid GetCouponsDTO dto, HttpServletRequest request) throws Exception;
 
 }

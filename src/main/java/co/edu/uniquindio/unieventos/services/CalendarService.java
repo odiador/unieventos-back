@@ -25,6 +25,6 @@ public interface CalendarService {
 
 	OnlyCalendarDTO findOnlyCalendar(@Valid String id) throws Exception;
 
-	ResponseDTO<?> findCalendar(@Valid String id) throws Exception;
+	CalendarDTO findCalendar(@Valid String id) throws Exception;
 
 }

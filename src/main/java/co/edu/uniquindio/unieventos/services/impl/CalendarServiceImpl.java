@@ -142,9 +142,9 @@ public class CalendarServiceImpl implements CalendarService {
 	}
 
 	@Override
-	public ResponseDTO<?> findCalendar(@Valid String id) throws Exception {
-		return new ResponseDTO<>("El calendario fue encotrado", mappers.getCalendarMapper()
-				.apply(calendarRepository.findById(id).orElseThrow(() -> new DocumentNotFoundException(id))));
+	public CalendarDTO findCalendar(@Valid String id) throws Exception {
+		return mappers.getCalendarMapper()
+				.apply(calendarRepository.findById(id).orElseThrow(() -> new DocumentNotFoundException(id)));
 	}
 
 }

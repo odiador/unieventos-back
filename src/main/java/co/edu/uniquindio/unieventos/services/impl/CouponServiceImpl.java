@@ -14,9 +14,12 @@ import co.edu.uniquindio.unieventos.dto.coupons.CouponDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponInfoDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.GetCouponsDTO;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
+import co.edu.uniquindio.unieventos.model.documents.Calendar;
 import co.edu.uniquindio.unieventos.model.documents.Coupon;
 import co.edu.uniquindio.unieventos.model.enums.CouponStatus;
 import co.edu.uniquindio.unieventos.model.enums.CouponType;
+import co.edu.uniquindio.unieventos.model.vo.Event;
+import co.edu.uniquindio.unieventos.repositories.CalendarRepository;
 import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.services.CouponService;
 import co.edu.uniquindio.unieventos.services.RandomCodesService;
@@ -28,9 +31,10 @@ public class CouponServiceImpl implements CouponService {
 
 	@Autowired
 	private CouponRepository couponRepository;
-
 	@Autowired
 	private RandomCodesService randomCodesService;
+	@Autowired
+	private CalendarRepository calendarRepository;
 
 	@Override
 	public String saveCoupon(@Valid CouponDTO couponDTO) throws Exception {
@@ -76,15 +80,34 @@ public class CouponServiceImpl implements CouponService {
 
 	private Function<Coupon, CouponInfoDTO> mapper() {
 		return c -> {
+			String calendarName = null;
+			String eventName = null;
+			if (c.isForSpecialEvent()) {
+				Calendar calendar = calendarRepository.findById(c.getCalendarId()).orElse(null);
+				if (calendar != null) {
+					calendarName = calendar.getName();
+					Event event = findEvent(calendar.getEvents(), c.getEventId());
+					if (event != null)
+						eventName = event.getName();
+				}
+			}
 			return new CouponInfoDTO(
 					c.getDiscount(),
-					c.getExpiryDate(),
+					c.getExpiryDate().toString(),
 					c.getCode(),
-					c.getStatus(),
-					c.getType(),
-					c.getName()
+					c.getStatus().toString(),
+					c.getType().toString(),
+					c.getName(),
+					c.getCalendarId(),
+					calendarName,
+					c.getEventId(),
+					eventName
 					);
 		};
+	}
+
+	private Event findEvent(List<Event> events, String eventId) {
+		return events.stream().filter(e -> e.getId().equals(eventId)).findAny().orElse(null);
 	}
 
 	@Override
