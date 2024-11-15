@@ -2,7 +2,6 @@ package co.edu.uniquindio.unieventos.dto.event;
 
 import org.hibernate.validator.constraints.Length;
 
-import co.edu.uniquindio.unieventos.misc.validation.ValidDateFormat;
 import co.edu.uniquindio.unieventos.misc.validation.ValidDateTimeFormat;
 import co.edu.uniquindio.unieventos.misc.validation.ValidObjectId;
 import jakarta.validation.constraints.Min;

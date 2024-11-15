@@ -1,6 +1,5 @@
 package co.edu.uniquindio.unieventos.services.impl;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
