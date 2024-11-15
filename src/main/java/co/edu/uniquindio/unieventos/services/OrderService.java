@@ -7,7 +7,6 @@ import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
-import co.edu.uniquindio.unieventos.dto.orders.PurchaseDTO;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
 import co.edu.uniquindio.unieventos.model.documents.Order;

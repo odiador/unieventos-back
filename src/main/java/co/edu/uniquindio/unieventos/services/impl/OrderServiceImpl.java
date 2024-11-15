@@ -31,7 +31,6 @@ import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
-import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
@@ -53,6 +52,7 @@ import co.edu.uniquindio.unieventos.repositories.CartRepository;
 import co.edu.uniquindio.unieventos.repositories.CouponRepository;
 import co.edu.uniquindio.unieventos.repositories.OrderRepository;
 import co.edu.uniquindio.unieventos.services.CouponService;
+import co.edu.uniquindio.unieventos.services.EmailService;
 import co.edu.uniquindio.unieventos.services.OrderService;
 
 @Service
@@ -70,6 +70,8 @@ public class OrderServiceImpl implements OrderService {
 	private OrderRepository orderRepository;
 	@Autowired
 	private CouponService couponService;
+	@Autowired
+	private EmailService emailService;
 
 	@Autowired
 	private MercadoPagoProps customProperties;
@@ -92,6 +94,9 @@ public class OrderServiceImpl implements OrderService {
 			coupon = couponRepository.findById(ordenGuardada.getCouponId().toString()).orElse(null);
 			newPriceFactor = coupon == null ? 1 : (100f - coupon.getDiscount()) / 100f;
 		}
+		Account account = accountRepository.findById(userId).orElse(null);
+		if (account == null)
+			throw new DocumentNotFoundException("La cuenta no fue encontrada");
 		List<PreferenceItemRequest> itemsPasarela = new ArrayList<>();
 		List<String> errors = new ArrayList<String>();
 		// Recorrer los items de la orden y crea los ítems de la pasarela
@@ -160,6 +165,7 @@ public class OrderServiceImpl implements OrderService {
 		// Crear la preferencia en la pasarela de MercadoPago
 		PreferenceClient client = new PreferenceClient();
 		Preference preference = client.create(preferenceRequest);
+		emailService.sendQRsOrder(account.getEmail(), "Tu detalle de Orden | AmaTickets", "Tu orden", mapOrderToFindOrderDTO(ordenGuardada));
 		// Guardar el código de la pasarela en la orden
 		ordenGuardada.setInitPoint(preference.getInitPoint());
 		orderRepository.save(ordenGuardada);
@@ -196,18 +202,15 @@ public class OrderServiceImpl implements OrderService {
 				for (OrderDetail detail : orden.getItems()) {
 					Calendar calendar = calendarRepository.findById(detail.getCalendarId()).orElse(null);
 					if (calendar == null)
-						throw new ConflictException(String.format("El calendario \"%s\" no fue encontrado", detail.getCalendarId()));
+						continue;
 					Event event = findEvent(detail.getEventId(), calendar);
 					if (event == null)
-						throw new ConflictException(String.format("El evento \"%s\" no fue encontrado", detail.getEventId()));
+						continue;
 					List<Locality> localities = event.getLocalities();
 					SimpleEntry<Locality, Integer> localityWIndex = getLocality(detail.getLocalityId(), localities);
 					if (localityWIndex == null)
-						throw new ConflictException(String.format("La localidad \"%s\" no fue encontrada", detail.getLocalityId()));
+						continue;
 					Locality locality = localityWIndex.getKey();
-					if (locality.getFreeTickets() < detail.getQuantity())
-						throw new ConflictException(String.format(
-								"La localidad \"%s\" no tiene suficientes tickets disponibles", locality.getName()));
 					locality.setTicketsSold(locality.getTicketsSold() + detail.getQuantity());
 					event.updateLocality(locality, localityWIndex.getValue());
 					calendar.updateEvent(event);
@@ -375,8 +378,12 @@ public class OrderServiceImpl implements OrderService {
 					event.getName(),
 					locality.getName(),
 					event.getEventImage(),
+					event.getStartTime(),
+					event.getEndTime(),
+					event.getCity(),
 					orderDetail.getPrice(),
-					orderDetail.getQuantity()));
+					orderDetail.getQuantity()
+					));
 		}
 		FindOrderDTO orderDto = new FindOrderDTO(
 				order.getId(),

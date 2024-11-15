@@ -1,5 +1,7 @@
 package co.edu.uniquindio.unieventos.dto.orders;
 
+import java.time.LocalDateTime;
+
 public record FindOrderDetailDTO(
 
 	    String calendarId,
@@ -9,6 +11,9 @@ public record FindOrderDetailDTO(
 	    String eventName,
 	    String localityName,
 	    String eventImage,
+	    LocalDateTime startTime,
+	    LocalDateTime endTime,
+	    String city,
 	    float price,
 	    int quantity
 
