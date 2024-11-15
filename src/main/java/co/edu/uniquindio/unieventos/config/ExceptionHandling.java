@@ -25,6 +25,7 @@ import co.edu.uniquindio.unieventos.exceptions.InvalidUsernameException;
 import co.edu.uniquindio.unieventos.exceptions.MaxCartsCreatedException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.NotVerifiedAccountException;
+import co.edu.uniquindio.unieventos.exceptions.PaymentException;
 import co.edu.uniquindio.unieventos.exceptions.UnauthorizedAccessException;
 import jakarta.validation.ConstraintViolationException;
 
@@ -39,6 +40,10 @@ public class ExceptionHandling {
 						ex.getBindingResult().getFieldErrors().stream()
 								.map(e -> new InvalidFieldDTO(e.getField(), e.getDefaultMessage()))
 								.collect(Collectors.toList())));
+	}
+	@ExceptionHandler(PaymentException.class)
+	public ResponseEntity<?> handlerException(PaymentException ex) {
+		return ResponseEntity.status(409).body(ex.getMessage());
 	}
 
 	@ExceptionHandler(InvalidLoginException.class)

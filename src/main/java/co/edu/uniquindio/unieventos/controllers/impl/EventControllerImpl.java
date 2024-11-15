@@ -43,7 +43,7 @@ public class EventControllerImpl implements EventController {
 	@Override
 	@PostMapping("/create")
 	@SecurityRequirement(name = "bearerAuth")
-	public ResponseEntity<ResponseDTO<EventDTO>> createEvent(@Valid CreateEventDTO dto, HttpServletRequest request)
+	public ResponseEntity<ResponseDTO<EventDTO>> createEvent(@Valid @ModelAttribute CreateEventDTO dto, HttpServletRequest request)
 			throws Exception {
 		authUtils.verifyRoleAdmin(request);
 		return ResponseEntity.status(201).body(new ResponseDTO<>("Evento creado con éxito",

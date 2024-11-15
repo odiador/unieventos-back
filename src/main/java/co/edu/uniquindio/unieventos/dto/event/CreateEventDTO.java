@@ -13,17 +13,15 @@ import co.edu.uniquindio.unieventos.model.enums.EventType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class CreateEventDTO {
 	
 
-	@NotNull
+	@NotNull	
 	@ValidObjectId
 	private String idCalendar;
 	
@@ -59,9 +57,11 @@ public class CreateEventDTO {
 
 	private List<@Valid EventTagDTO> tags;
 
+	@NotNull
 	@ValidEnum(enumClass = EventStatus.class, message = "El estado del evento es inválido")
 	private String status;
 
+	@NotNull
 	@ValidEnum(enumClass = EventType.class, message = "El tipo del evento es inválido")
 	private String type;
 

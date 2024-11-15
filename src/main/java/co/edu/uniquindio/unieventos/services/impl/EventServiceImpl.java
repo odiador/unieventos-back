@@ -68,10 +68,6 @@ public class EventServiceImpl implements EventService {
 	@Override
 	public EventDTO createEvent(@Valid CreateEventDTO dto) throws Exception {
 		Calendar calendar = searchCalendar(dto.getIdCalendar());
-		List<Event> events = calendar.getEvents();
-		for (Event e : events)
-			if (e.getName().equals(dto.getName()))
-				throw new DocumentFoundException("Ya creaste un evento con este nombre en el calendario");
 		String eventImage = dto.getEventImage() != null ?
 				imagesService.uploadImage(dto.getEventImage()) : null;
 		String localityImage = dto.getLocalityImage() != null ?
@@ -163,7 +159,8 @@ public class EventServiceImpl implements EventService {
 
 	    if (dto.getType() != null)
 	        event.setType(EventType.valueOf(dto.getType()));
-		event.setName(dto.getNewName());
+		if (dto.getNewName() != null)
+			event.setName(dto.getNewName());
 		calendar.updateEvent(event);
 		calendarRepository.save(calendar);
 		return mappers.getEventMapper().apply(event);

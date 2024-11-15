@@ -222,7 +222,7 @@ public class OrderServiceImpl implements OrderService {
 			}
 
 		} catch (Exception e) {
-			throw new PaymentException("No se pudo hacer el pago. Reason:" + e.getMessage());
+			throw new PaymentException("No se pudo hacer el pago. Reason: " + e.getMessage());
 		}
 	}
 

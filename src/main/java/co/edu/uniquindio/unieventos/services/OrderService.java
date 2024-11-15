@@ -3,8 +3,6 @@ package co.edu.uniquindio.unieventos.services;
 import java.util.List;
 import java.util.Map;
 
-import com.mercadopago.resources.preference.Preference;
-
 import co.edu.uniquindio.unieventos.dto.orders.CreateOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
