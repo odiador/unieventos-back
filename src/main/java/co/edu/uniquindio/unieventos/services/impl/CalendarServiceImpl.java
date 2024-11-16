@@ -18,7 +18,6 @@ import co.edu.uniquindio.unieventos.dto.calendar.EditCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.OnlyCalendarDTO;
 import co.edu.uniquindio.unieventos.dto.calendar.SearchPageDTO;
 import co.edu.uniquindio.unieventos.dto.event.EventTagDTO;
-import co.edu.uniquindio.unieventos.dto.misc.ResponseDTO;
 import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentFoundException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;

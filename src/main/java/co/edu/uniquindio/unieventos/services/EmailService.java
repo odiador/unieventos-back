@@ -5,6 +5,7 @@ import co.edu.uniquindio.unieventos.dto.auth.VerifyMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.coupons.CouponMailSendDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
+import jakarta.mail.MessagingException;
 
 public interface EmailService {
 
@@ -15,4 +16,7 @@ public interface EmailService {
 	void sendFirstPurchaseCouponMail(CouponMailSendDTO dto) throws MailSendingException;
 
 	void sendQRsOrder(String to, String subject, String text, FindOrderDTO orderDto) throws Exception;
+
+	void sendMailWPDFAttachment(String to, String subject, String body, byte[] bytes, String filename)
+			throws MailSendingException, MessagingException;
 }

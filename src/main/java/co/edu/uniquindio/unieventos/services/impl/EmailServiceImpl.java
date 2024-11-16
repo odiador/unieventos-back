@@ -25,6 +25,7 @@ import co.edu.uniquindio.unieventos.dto.orders.FindOrderDTO;
 import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
 import co.edu.uniquindio.unieventos.exceptions.MailSendingException;
 import co.edu.uniquindio.unieventos.services.EmailService;
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 
@@ -38,6 +39,7 @@ public class EmailServiceImpl implements EmailService {
     private String sender;
 
 	@Override
+	@Async
 	public void sendVerificationMail(VerifyMailSendDTO dto) throws MailSendingException {
 		SimpleMailMessage mimeMessage = new SimpleMailMessage();
 
@@ -93,6 +95,7 @@ public class EmailServiceImpl implements EmailService {
 	}
 
     @Override
+    @Async
     public void sendPasswordRecoveryMail(RecoveryPasswordMailSendDTO dto) throws MailSendingException {
         SimpleMailMessage mimeMessage = new SimpleMailMessage();
 
@@ -105,6 +108,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
+    @Async
     public void sendFirstPurchaseCouponMail(CouponMailSendDTO dto) throws MailSendingException {
         SimpleMailMessage mimeMessage = new SimpleMailMessage();
 
@@ -114,6 +118,24 @@ public class EmailServiceImpl implements EmailService {
         mimeMessage.setText(String.format("Tu codigo de cupón para un 10%% de descuento es: %s", dto.couponCode()));
         mimeMessage.setCc(dto.email());
         sendMessage(mimeMessage);
+    }
+    
+    @Override
+    @Async
+	public void sendMailWPDFAttachment(String to, String subject, String body, byte[] bytes, String filename)
+			throws MailSendingException, MessagingException {
+    	MimeMessage message = mailSender.createMimeMessage();
+    	MimeMessageHelper helper = new MimeMessageHelper(message, true);
+    	
+    	helper.setFrom("amaeventosuq@gmail.com");
+    	helper.setTo(to);
+    	helper.setSubject(subject);
+    	helper.setText(body);
+    	helper.setCc(to);
+    	
+    	ByteArrayDataSource dataSource = new ByteArrayDataSource(bytes, "application/pdf");
+		helper.addAttachment(filename, dataSource);
+		mailSender.send(message);
     }
 
 	private void sendMessage(SimpleMailMessage mimeMessage) throws MailSendingException {
