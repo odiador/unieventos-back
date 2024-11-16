@@ -257,6 +257,9 @@ public class OrderServiceImpl implements OrderService {
 				Order orden = getOrder(idOrden);
 				co.edu.uniquindio.unieventos.model.vo.Payment pago = createPayment(payment);
 				List<Calendar> editedCalendars = new ArrayList<Calendar>();
+				orden.setStatus(OrderStatus.PAID);
+				orden.setPayment(pago);
+				orderRepository.save(orden);
 				for (OrderDetail detail : orden.getItems()) {
 					Calendar calendar = calendarRepository.findById(detail.getCalendarId()).orElse(null);
 					if (calendar == null)
@@ -274,8 +277,8 @@ public class OrderServiceImpl implements OrderService {
 					event.updateLocality(locality, localityWIndex.getValue());
 					calendar.updateEvent(event);
 					editedCalendars.add(calendar);
+					calendarRepository.save(calendar);
 				}
-				calendarRepository.saveAll(editedCalendars);
 				orden.setStatus(OrderStatus.PAID);
 				orden.setPayment(pago);
 				orderRepository.save(orden);
