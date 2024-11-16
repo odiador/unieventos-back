@@ -53,28 +53,33 @@ public class ReportServiceImpl implements ReportService {
 		double earnedTotal = 0;
 		int ticketsSoldTotal = 0;
 		int capabilityTotal = 0;
+		double totalRetention = 0;
 
 		document.add(new Paragraph("Localities"));
-		Table table = new Table(new float[] { 4, 4, 4 });
+		Table table = new Table(new float[] { 4, 4, 4, 4 });
 
 		table.addCell("Name");
 		table.addCell("Price");
 		table.addCell("Max. Capability");
 		table.addCell("Tickets Sold");
+		table.addCell("Retention");
 
 		List<Locality> localities = event.getLocalities();
 		for (Locality loc : localities) {
 			int maxCapability = loc.getMaxCapability();
 			int ticketsSold = loc.getTicketsSold();
 			float price = loc.getPrice();
+			int retention = loc.getRetention();
 			table.addCell(new Cell().add(new Paragraph(loc.getName())));
 			table.addCell(new Cell().add(new Paragraph(String.format("%.2f", price))));
 			table.addCell(new Cell().add(new Paragraph(maxCapability + "")));
 			table.addCell(new Cell().add(new Paragraph(ticketsSold + "")));
+			table.addCell(new Cell().add(new Paragraph(retention + "")));
 
 			capabilityTotal += maxCapability;
 			ticketsSoldTotal += ticketsSold;
 			earnedTotal += price * ticketsSold;
+			totalRetention += retention;
 		}
 		document.add(table);
 		double totalSoldPercentage = (ticketsSoldTotal / (double) capabilityTotal) * 100;
@@ -82,6 +87,7 @@ public class ReportServiceImpl implements ReportService {
 		document.add(new Paragraph("\nStatistics:"));
 		document.add(new Paragraph(String.format("Total Sell Percentage: %.2f%%", totalSoldPercentage)));
 		document.add(new Paragraph(String.format("Total earned from sales: $%.2f", earnedTotal)));
+		document.add(new Paragraph(String.format("Total tickets in retention: $%.2f", totalRetention)));
 
 		document.add(new Paragraph("\nSell percentage by locality:"));
 		List<LocalityDataDTO> soldpercentage = new ArrayList<>();

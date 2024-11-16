@@ -42,4 +42,15 @@ public class Event {
 			localities.set(i, locality);
 		}
 	}
+
+	public boolean updateLocality(Locality locality) {
+		for (int i = 0; i < localities.size(); i++) {
+			Locality l = localities.get(i);
+			if (l.getId().equals(locality.getId())) {
+				localities.set(i, locality);
+				return true;
+			}
+		}
+		return false;
+	}
 }

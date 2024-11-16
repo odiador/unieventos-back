@@ -31,6 +31,7 @@ import co.edu.uniquindio.unieventos.dto.orders.FindOrderDetailDTO;
 import co.edu.uniquindio.unieventos.dto.orders.MercadoPagoURLDTO;
 import co.edu.uniquindio.unieventos.dto.orders.OrderDTO;
 import co.edu.uniquindio.unieventos.exceptions.CartEmptyException;
+import co.edu.uniquindio.unieventos.exceptions.ConflictException;
 import co.edu.uniquindio.unieventos.exceptions.DocumentNotFoundException;
 import co.edu.uniquindio.unieventos.exceptions.MultiErrorException;
 import co.edu.uniquindio.unieventos.exceptions.PaymentException;
@@ -79,15 +80,67 @@ public class OrderServiceImpl implements OrderService {
 	private Mappers mappers;
 
 	@Override
+	public void cancelOrder(String idOrden, String userId) throws Exception {
+		Order order = getOrder(idOrden);
+		if (order.getStatus() == OrderStatus.PAID)
+			throw new ConflictException("La orden ya está paga");
+		if (order.getStatus() == OrderStatus.CANCELED)
+			throw new ConflictException("La orden ya fue cancelada");
+		if (!order.getClientId().toString().equals(userId))
+			throw new UnauthorizedAccessException("La orden no está a tu nombre");
+		for (OrderDetail item : order.getItems()) {
+			Calendar calendar = calendarRepository.findById(item.getCalendarId().toString())
+					.orElse(null);
+			if (calendar == null)
+				continue;
+			Event event;
+			{
+				Optional<Event> optional = calendar.getEvents().stream()
+						.filter(e -> e.getId().equals(item.getEventId())).findFirst();
+				if (optional.isEmpty())
+					continue;
+				event = optional.get();
+			}
+			Locality locality;
+			{
+
+				Optional<Locality> optional = event.getLocalities().stream()
+						.filter(l -> l.getId().equals(item.getLocalityId())).findFirst();
+				if (optional.isEmpty()) 
+					continue;
+				locality = optional.get();
+
+			}
+			// si la orden está confirmada
+			if (order.getInitPoint() != null) {
+				locality.setRetention(locality.getRetention() - item.getQuantity());
+				if (locality.getRetention() < 0)
+					locality.setRetention(0); // no debería de pasar pero por si acaso
+				event.updateLocality(locality);
+				calendar.updateEvent(event);
+				calendarRepository.save(calendar);
+			}
+		}
+		order.setInitPoint(null);
+		order.setStatus(OrderStatus.CANCELED);
+		orderRepository.save(order);
+	}
+
+	@Override
 	public MercadoPagoURLDTO realizarPago(String idOrden, String userId, String origin) throws Exception {
 
 		// Obtener la orden guardada en la base de datos y los ítems de la orden
 		Order ordenGuardada = getOrder(idOrden);
+		if (ordenGuardada.getStatus() == OrderStatus.CANCELED)
+			throw new ConflictException("La orden ya fue cancelada");
+		if (ordenGuardada.getStatus() == OrderStatus.PAID)
+			throw new ConflictException("La orden ya está paga");
+
+		if (!ordenGuardada.getClientId().toString().equals(userId))
+			throw new UnauthorizedAccessException("La orden no está a tu nombre");
 		if (ordenGuardada.getInitPoint() != null) {
 			return new MercadoPagoURLDTO(ordenGuardada.getInitPoint());
 		}
-		if (!ordenGuardada.getClientId().toString().equals(userId))
-			throw new UnauthorizedAccessException("La orden no está a tu nombre");
 		float newPriceFactor = 1;
 		Coupon coupon = null;
 		if (ordenGuardada.getCouponId() != null) {
@@ -132,6 +185,11 @@ public class OrderServiceImpl implements OrderService {
 							? (coupon.getCalendarId().equals(calendar.getId())
 									&& coupon.getEventId().equals(event.getId()) ? newPriceFactor : 1)
 							: newPriceFactor));
+			// se confirma la compra, entonces se agrega una retención
+			locality.setRetention(locality.getRetention() + item.getQuantity());
+			event.updateLocality(locality);
+			calendar.updateEvent(event);
+			calendarRepository.save(calendar);
 			// Crear el item de la pasarela
 			PreferenceItemRequest itemRequest = PreferenceItemRequest.builder().title(event.getName())
 					.title(String.format("%s - %s", calendar.getName(), event.getName()))
@@ -212,6 +270,7 @@ public class OrderServiceImpl implements OrderService {
 						continue;
 					Locality locality = localityWIndex.getKey();
 					locality.setTicketsSold(locality.getTicketsSold() + detail.getQuantity());
+					locality.setRetention(locality.getRetention() - detail.getQuantity());
 					event.updateLocality(locality, localityWIndex.getValue());
 					calendar.updateEvent(event);
 					editedCalendars.add(calendar);
@@ -259,7 +318,9 @@ public class OrderServiceImpl implements OrderService {
 				.orElseThrow(() -> new DocumentNotFoundException("El usuario en el carrito no fue encontrado"));
 		if (!account.getEmail().equals(dto.email()))
 			throw new UnauthorizedAccessException("Tu cuenta no coincide con la cuenta del carrito");
-
+		int unpaidOrders = orderRepository.findByClientIdAndStatus(new ObjectId(account.getId()), OrderStatus.CREATED).size();
+		if (unpaidOrders >= 3)
+			throw new ConflictException("Tienes 3 ordenes o más sin pagar, primero págalas o cancélalas antes de generar una nueva");
 		if (cart.isEmpty())
 			throw new CartEmptyException("El carrito no puede estar vacío");
 

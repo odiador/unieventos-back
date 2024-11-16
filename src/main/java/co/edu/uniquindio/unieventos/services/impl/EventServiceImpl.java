@@ -174,8 +174,10 @@ public class EventServiceImpl implements EventService {
 		            Locality existingLocality = existingLocs.get(l.id());
 
 					if (existingLocality != null) {
-						if (existingLocality.getTicketsSold() > l.maxCapability()) {
-							errors.add(String.format("%s: %s", l.id(), l.name()));
+						int minEditingCapability = existingLocality.minEditingCapability();
+						if (l.maxCapability() < minEditingCapability) {
+							errors.add(String.format("El mínimo en la localidad \"%s\" (%s) es: %d", l.name(), l.id(),
+									minEditingCapability));
 							return null;
 						}
 						existingLocality.setMaxCapability(l.maxCapability());
@@ -186,6 +188,7 @@ public class EventServiceImpl implements EventService {
 		                	.id(l.id())
 		                    .name(l.name())
 		                    .ticketsSold(0)
+		                    .retention(0)
 		                    .maxCapability(l.maxCapability())
 		                    .price(l.price())
 		                    .build();

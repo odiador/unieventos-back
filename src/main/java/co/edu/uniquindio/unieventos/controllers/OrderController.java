@@ -31,4 +31,6 @@ public interface OrderController {
 
 	ResponseEntity<ResponseDTO<List<FindOrderDTO>>> listOrders(HttpServletRequest request) throws Exception;
 
+	ResponseEntity<ResponseDTO<Void>> cancelOrder(@NotNull String id, HttpServletRequest request) throws Exception;
+
 }

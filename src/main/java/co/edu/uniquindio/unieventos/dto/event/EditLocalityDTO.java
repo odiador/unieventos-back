@@ -22,7 +22,7 @@ public record EditLocalityDTO(
 		Float price,
 
 		@NotNull
-		@Range(min = 0, max = Integer.MAX_VALUE)
+		@Range(min = 1, max = Integer.MAX_VALUE)
 		Integer maxCapability
 		
 ) {}

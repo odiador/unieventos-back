@@ -86,6 +86,17 @@ public class OrderControllerImpl implements OrderController {
 		return ResponseEntity.ok(new ResponseDTO<OrderDTO>("Orden creada con éxito",
 				orderService.createOrder(new CreateOrderDTO(id, mail, coupon))));
 	}
+	@Override
+	@SecurityRequirement(name = "bearerAuth")
+	@PostMapping("/cancel")
+	public ResponseEntity<ResponseDTO<Void>> cancelOrder(@RequestParam("id") @NotNull String id, HttpServletRequest request) throws Exception {
+		authUtils.validateRoleMinClient(request);
+		String userId = authUtils.getId(request);
+		if (userId == null)
+			throw new UnauthorizedAccessException("No se pudo encontrar la sesión, inicia sesión de nuevo");
+		orderService.cancelOrder(id, userId);
+		return ResponseEntity.ok(new ResponseDTO<Void>("Orden cancelada con éxito", null));
+	}
 
 	@Override
 	@SecurityRequirement(name = "bearerAuth")

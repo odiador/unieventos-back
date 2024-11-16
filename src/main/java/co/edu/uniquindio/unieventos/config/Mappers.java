@@ -94,7 +94,7 @@ public class Mappers {
 								locality.getId(),
 								locality.getName(),
 								locality.getPrice(),
-								locality.getTicketsSold(),
+								locality.getTicketsSold() + locality.getRetention(),
 								locality.getMaxCapability()))
 						.collect(Collectors.toList()),
 						event.getTags() == null ? null

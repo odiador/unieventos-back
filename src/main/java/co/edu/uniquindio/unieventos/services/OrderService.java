@@ -15,6 +15,8 @@ public interface OrderService {
 
 	MercadoPagoURLDTO realizarPago(String idOrden, String userId, String origin) throws Exception;
 
+	void cancelOrder(String idOrden, String userId) throws Exception;
+
 	void receiveMercadoPagoNotification(Map<String, Object> request) throws PaymentException;
 
 	Order getOrder(String idOrden) throws Exception;
