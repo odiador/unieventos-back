@@ -33,6 +33,7 @@ public class TokenFilter extends OncePerRequestFilter {
 
 		// Configuración de cabeceras para CORS
 		String origin = request.getHeader("Origin");
+		System.out.println(origin);
 		response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		if ("https://amaevents.vercel.app".equals(origin) || "http://localhost".equals(origin)
